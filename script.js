@@ -140,32 +140,83 @@ Grand Total: ₹${total}
     }
   });
 
-  // Cart open/close bindings
-  document.getElementById('cart-btn').addEventListener('click', openCart);
-  document.getElementById('close-cart').addEventListener('click', closeCart);
-  document.getElementById('cart-overlay').addEventListener('click', closeCart);
-  
-  document.getElementById('clear-cart').addEventListener('click', () => {
+ // Cart open/close bindings
+
+const cartBtn = document.getElementById('cart-btn');
+const closeCartBtn = document.getElementById('close-cart');
+const cartOverlay = document.getElementById('cart-overlay');
+
+if (cartBtn) {
+  cartBtn.addEventListener('click', openCart);
+}
+
+if (closeCartBtn) {
+  closeCartBtn.addEventListener('click', closeCart);
+}
+
+if (cartOverlay) {
+  cartOverlay.addEventListener('click', closeCart);
+}
+
+// CLEAR CART
+const clearCartBtn = document.getElementById('clear-cart');
+
+if (clearCartBtn) {
+
+  clearCartBtn.addEventListener('click', () => {
+
     cart = [];
+
     updateCartUI();
+
     closeCart();
+
     showToast('Cart cleared', 'success');
-  });
-  
-  document.getElementById('proceed-book').addEventListener('click', () => {
-    if (cart.length === 0) {
-      showToast('Cart is empty. Please add tests first.', 'warning');
-      return;
-    }
-    closeCart();
-    document.querySelector('#appointment').scrollIntoView({ behavior: 'smooth' });
-    
-    // Pre-fill notes with cart items
-    const tests = cart.map(i => i.name).join(', ');
-    const notesInput = document.querySelector('textarea[name="notes"]');
-    notesInput.value = `I want to book the following tests:\n${tests}`;
+
   });
 
+}
+
+// PROCEED BOOKING
+const proceedBookBtn = document.getElementById('proceed-book');
+
+if (proceedBookBtn) {
+
+  proceedBookBtn.addEventListener('click', () => {
+
+    if (cart.length === 0) {
+
+      showToast(
+        'Cart is empty. Please add tests first.',
+        'warning'
+      );
+
+      return;
+    }
+
+    closeCart();
+
+    document.querySelector('#appointment').scrollIntoView({
+      behavior: 'smooth'
+    });
+
+    // PRE-FILL NOTES
+    const tests = cart.map(i => i.name).join(', ');
+
+    const notesInput =
+      document.querySelector('textarea[name="notes"]');
+
+    if (notesInput) {
+
+      notesInput.value =
+`I want to book the following tests:
+${tests}`;
+
+    }
+
+  });
+
+}
   // Initialize empty cart
   updateCartUI();
 
@@ -472,7 +523,6 @@ if (distance > RADIUS_KM) {
 
   return false;
 }
-
 console.log('Distance:', distance);
 
 
