@@ -481,7 +481,7 @@ const customerPhone =
 document.querySelector('input[name="phone"]').value;
 
 const customerAddress =
-document.querySelector('textarea[name="address"]').value;
+document.querySelector('input[name="address"]').value;
 
 const customerNotes =
 document.querySelector('textarea[name="notes"]').value;
