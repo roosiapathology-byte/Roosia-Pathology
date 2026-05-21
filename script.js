@@ -1,53 +1,74 @@
-// Wait for DOM content to load
-document.addEventListener('DOMContentLoaded', () => {
-  
-  // 1. NAVBAR SCROLL EFFECT
-  window.addEventListener('scroll', () => {
-    const navbar = document.getElementById('navbar');
-    if (window.scrollY > 50) navbar.classList.add('scrolled');
-    else navbar.classList.remove('scrolled');
+/* ================================================================
+   ROOSIA PATHOLOGY — script.js
+   Complete, production-ready. Single DOMContentLoaded. No duplicates.
+   ================================================================
+
+   ARCHITECTURE:
+   1.  Navbar scroll + mobile menu
+   2.  Smooth scroll
+   3.  Cart system (add / remove / totals / sidebar)
+   4.  View-all toggle on test cards
+   5.  UPI payment section toggle
+   6.  Booking-type radio (self / other) — shows correct location UI
+   7.  Mode A: GPS live location capture
+   8.  Mode B: Leaflet map picker
+   9.  Haversine distance checker (5 km radius)
+   10. Appointment form submit + EmailJS owner notification
+   11. Toast notifications
+   12. Contact map (Leaflet, lab pin)
+================================================================ */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ──────────────────────────────────────────────────────────────
+     CONSTANTS
+  ────────────────────────────────────────────────────────────── */
+  var LAB_LAT           = 25.460547;
+  var LAB_LNG           = 78.5776043;
+  var SERVICE_RADIUS_KM = 5;
+
+  /* EmailJS — already initialised in index.html inline script */
+  var EMAILJS_SERVICE_ID  = 'roosiapathology';
+  var EMAILJS_TEMPLATE_ID = 'template_dc4vb8x';   /* owner notification */
+
+  /* ──────────────────────────────────────────────────────────────
+     1. NAVBAR — scroll effect + mobile toggle
+  ────────────────────────────────────────────────────────────── */
+  var navbar        = document.getElementById('navbar');
+  var mobileMenuBtn = document.getElementById('mobile-menu-btn');
+
+  window.addEventListener('scroll', function () {
+    navbar.classList.toggle('scrolled', window.scrollY > 50);
   });
 
-  // 2. MOBILE MENU TOGGLE
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  const navbar = document.getElementById('navbar');
-  
   if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener('click', () => {
+    mobileMenuBtn.addEventListener('click', function () {
       navbar.classList.toggle('nav-open');
-      const icon = mobileMenuBtn.querySelector('i');
+      var icon = mobileMenuBtn.querySelector('i');
       if (navbar.classList.contains('nav-open')) {
-        icon.classList.remove('fa-bars');
-        icon.classList.add('fa-times');
+        icon.classList.replace('fa-bars', 'fa-times');
       } else {
-        icon.classList.remove('fa-times');
-        icon.classList.add('fa-bars');
+        icon.classList.replace('fa-times', 'fa-bars');
       }
     });
   }
 
-  // 3. SMOOTH SCROLL FOR NAV LINKS
-  document.querySelectorAll('.nav-links a, .hero-buttons a, .footer-links a').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      const href = this.getAttribute('href');
-      if (href.startsWith('#')) {
+  /* ──────────────────────────────────────────────────────────────
+     2. SMOOTH SCROLL
+  ────────────────────────────────────────────────────────────── */
+  document.querySelectorAll('.nav-links a, .hero-buttons a, .footer-links a').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var href = this.getAttribute('href');
+      if (href && href.startsWith('#')) {
         e.preventDefault();
-        const target = document.querySelector(href);
+        var target = document.querySelector(href);
         if (target) {
-          // Close mobile menu if open
           navbar.classList.remove('nav-open');
           if (mobileMenuBtn) {
-            mobileMenuBtn.querySelector('i').classList.remove('fa-times');
-            mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+            mobileMenuBtn.querySelector('i').classList.replace('fa-times', 'fa-bars');
           }
-          
-          // Scroll with offset for navbar
-          const headerOffset = 80;
-          const elementPosition = target.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-          
           window.scrollTo({
-            top: offsetPosition,
+            top: target.getBoundingClientRect().top + window.pageYOffset - 80,
             behavior: 'smooth'
           });
         }
@@ -55,534 +76,512 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 4. CART SYSTEM
-  let cart = [];
+  /* ──────────────────────────────────────────────────────────────
+     3. CART SYSTEM
+  ────────────────────────────────────────────────────────────── */
+  var cart = [];
 
-  // Expose global functions for HTML onclick if needed, though we use event delegation
-  window.addToCart = function(name, price) {
-    if (cart.find(item => item.name === name)) {
+  var cartSidebar  = document.getElementById('cart-sidebar');
+  var cartOverlay  = document.getElementById('cart-overlay');
+  var cartCountEl  = document.getElementById('cart-count');
+  var cartItemsEl  = document.getElementById('cart-items');
+  var cartTotalEl  = document.getElementById('cart-total');
+  var cartBtn      = document.getElementById('cart-btn');
+  var closeCartBtn = document.getElementById('close-cart');
+  var clearCartBtn = document.getElementById('clear-cart');
+  var proceedBtn   = document.getElementById('proceed-book');
+
+  function openCart()  { cartSidebar.classList.add('open');    cartOverlay.classList.add('show'); }
+  function closeCart() { cartSidebar.classList.remove('open'); cartOverlay.classList.remove('show'); }
+
+  function getHomeCharge() {
+    var r = document.querySelector('input[name="collection"]:checked');
+    return (r && r.value === 'home') ? 50 : 0;
+  }
+
+  function updateCartUI() {
+    cartCountEl.textContent = cart.length;
+
+    if (cart.length === 0) {
+      cartItemsEl.innerHTML = '<div class="empty-cart-msg">Your cart is empty</div>';
+    } else {
+      cartItemsEl.innerHTML = cart.map(function (item, i) {
+        return '<div class="cart-item">'
+          + '<div class="cart-item-info">'
+          + '<span class="cart-item-name">' + item.name + '</span>'
+          + '<span class="cart-item-price">₹' + item.price + '</span>'
+          + '</div>'
+          + '<button class="remove-item" data-index="' + i + '"><i class="fas fa-trash"></i></button>'
+          + '</div>';
+      }).join('');
+    }
+
+    var testsTotal = cart.reduce(function (s, i) { return s + i.price; }, 0);
+    var homeCharge = getHomeCharge();
+    var grandTotal = testsTotal + homeCharge;
+
+    cartTotalEl.innerHTML = '<strong>'
+      + 'Tests Total: ₹' + testsTotal + '<br>'
+      + 'Home Collection Charge: ₹' + homeCharge + '<br>'
+      + 'Grand Total: ₹' + grandTotal
+      + '</strong>';
+  }
+
+  /* Remove via delegation */
+  cartItemsEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('.remove-item');
+    if (btn) {
+      cart.splice(parseInt(btn.getAttribute('data-index'), 10), 1);
+      updateCartUI();
+    }
+  });
+
+  /* Add to cart — exposed globally for any inline usage */
+  window.addToCart = function (name, price) {
+    price = parseInt(price, 10);
+    if (cart.find(function (i) { return i.name === name; })) {
       showToast(name + ' is already in your cart!', 'warning');
       return;
     }
-    cart.push({ name, price: parseInt(price) });
+    cart.push({ name: name, price: price });
     updateCartUI();
     openCart();
     showToast(name + ' added to cart!', 'success');
   };
 
-  window.removeFromCart = function(index) {
-    cart.splice(index, 1);
-    updateCartUI();
-  };
-
-  function updateCartUI() {
-    // Update badge
-    document.getElementById('cart-count').textContent = cart.length;
-    
-    const cartItems = document.getElementById('cart-items');
-    
-    if (cart.length === 0) {
-      cartItems.innerHTML = '<div class="empty-cart-msg">Your cart is empty</div>';
-    } else {
-      let html = '';
-      cart.forEach((item, index) => {
-        html += `
-          <div class="cart-item">
-            <div class="cart-item-info">
-              <span class="cart-item-name">${item.name}</span>
-              <span class="cart-item-price">₹${item.price}</span>
-            </div>
-            <button class="remove-item" onclick="removeFromCart(${index})"><i class="fas fa-trash"></i></button>
-          </div>
-        `;
-      });
-      cartItems.innerHTML = html;
+  /* Event delegation for ALL .book-btn on the page */
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.book-btn');
+    if (btn) {
+      var n = btn.getAttribute('data-test');
+      var p = btn.getAttribute('data-price');
+      if (n && p) window.addToCart(n, p);
     }
-    
-    // Update total
-    let total = cart.reduce((sum, item) => sum + item.price, 0);
+  });
 
-// HOME COLLECTION CHARGE
-const collectionType = document.querySelector('input[name="collection"]:checked')?.value;
+  if (cartBtn)      cartBtn.addEventListener('click', openCart);
+  if (closeCartBtn) closeCartBtn.addEventListener('click', closeCart);
+  if (cartOverlay)  cartOverlay.addEventListener('click', closeCart);
 
-let homeCharge = 0;
-
-if (collectionType === "home") {
-  homeCharge = 50;
-  total += homeCharge;
-}
-    document.getElementById('cart-total').innerHTML = `
-<strong>
-Tests Total: ₹${total - homeCharge}<br>
-Home Collection Charge: ₹${homeCharge}<br>
-Grand Total: ₹${total}
-</strong>
-`;
-  }
-  function openCart() { 
-    document.getElementById('cart-sidebar').classList.add('open'); 
-    document.getElementById('cart-overlay').classList.add('show'); 
-  }
-  
-  function closeCart() { 
-    document.getElementById('cart-sidebar').classList.remove('open'); 
-    document.getElementById('cart-overlay').classList.remove('show'); 
+  if (clearCartBtn) {
+    clearCartBtn.addEventListener('click', function () {
+      cart = [];
+      updateCartUI();
+      closeCart();
+      showToast('Cart cleared', 'success');
+    });
   }
 
-  // Event Delegation for book buttons
-  document.addEventListener('click', function(e) {
-    if (e.target && e.target.classList.contains('book-btn')) {
-      const name = e.target.getAttribute('data-test');
-      const price = e.target.getAttribute('data-price');
-      if (name && price) {
-        addToCart(name, price);
-      }
-    }
-  });
-
- // Cart open/close bindings
-
-const cartBtn = document.getElementById('cart-btn');
-const closeCartBtn = document.getElementById('close-cart');
-const cartOverlay = document.getElementById('cart-overlay');
-
-if (cartBtn) {
-  cartBtn.addEventListener('click', openCart);
-}
-
-if (closeCartBtn) {
-  closeCartBtn.addEventListener('click', closeCart);
-}
-
-if (cartOverlay) {
-  cartOverlay.addEventListener('click', closeCart);
-}
-
-// CLEAR CART
-const clearCartBtn = document.getElementById('clear-cart');
-
-if (clearCartBtn) {
-
-  clearCartBtn.addEventListener('click', () => {
-
-    cart = [];
-
-    updateCartUI();
-
-    closeCart();
-
-    showToast('Cart cleared', 'success');
-
-  });
-
-}
-
-// PROCEED BOOKING
-const proceedBookBtn = document.getElementById('proceed-book');
-
-if (proceedBookBtn) {
-
-  proceedBookBtn.addEventListener('click', () => {
-
-    if (cart.length === 0) {
-
-      showToast(
-        'Cart is empty. Please add tests first.',
-        'warning'
-      );
-
-      return;
-    }
-
-    closeCart();
-
-    document.querySelector('#appointment').scrollIntoView({
-      behavior: 'smooth'
-    });
-
-    // PRE-FILL NOTES
-    const tests = cart.map(i => i.name).join(', ');
-
-    const notesInput =
-      document.querySelector('textarea[name="notes"]');
-
-    if (notesInput) {
-
-      notesInput.value =
-`I want to book the following tests:
-${tests}`;
-
-    }
-
-  });
-
-}
-  // Initialize empty cart
-  updateCartUI();
-
-  // 5. VIEW ALL TESTS TOGGLE
-  document.querySelectorAll('.view-all-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const card = this.closest('.test-category-card');
-      const hidden = card.querySelector('.hidden-tests');
-      
-      // Get number from button text originally
-      const originalText = this.getAttribute('data-original-text') || this.innerHTML;
-      if (!this.hasAttribute('data-original-text')) {
-        this.setAttribute('data-original-text', originalText);
-      }
-      
-      const isOpen = hidden.style.display === 'block';
-      hidden.style.display = isOpen ? 'none' : 'block';
-      
-      this.innerHTML = isOpen 
-        ? originalText
-        : 'Show Less <i class="fas fa-chevron-up"></i>';
-    });
-  });
-
-  // 6. PAYMENT UPI TOGGLE
-  document.querySelectorAll('input[name="payment"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-      const upiSection = document.getElementById('upi-section');
-      upiSection.style.display = this.value === 'upi' ? 'block' : 'none';
-    });
-  });
-  // 9. TOAST NOTIFICATION
-  window.showToast = function(message, type) {
-    const toast = document.createElement('div');
-    toast.className = 'toast toast-' + type;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    // Trigger animation
-    setTimeout(() => toast.classList.add('show'), 10);
-    
-    // Remove after 3s
-    setTimeout(() => { 
-      toast.classList.remove('show'); 
-      setTimeout(() => toast.remove(), 300); 
-    }, 3000);
-  };
-});
-// STRICT LOCATION BOOKING SYSTEM
-
-document.addEventListener('DOMContentLoaded', () => {
-
-  const bookingOptions = document.querySelectorAll('input[name="bookingFor"]');
-
-  const selfSection = document.getElementById('self-location-section');
-  const otherSection = document.getElementById('other-location-section');
-
-  const liveBtn = document.getElementById('get-live-location');
-
-  const latitudeInput = document.getElementById('latitude');
-  const longitudeInput = document.getElementById('longitude');
-  const locationTypeInput = document.getElementById('locationType');
-
-  const liveStatus = document.getElementById('live-location-status');
-  const manualStatus = document.getElementById('manual-location-status');
-
-  let bookingMap = null;
-  let bookingMarker = null;
-
-  // BOOKING TYPE
-  bookingOptions.forEach(option => {
-
-    option.addEventListener('change', function() {
-
-      latitudeInput.value = '';
-      longitudeInput.value = '';
-      locationTypeInput.value = '';
-
-      liveStatus.innerHTML = '';
-      manualStatus.innerHTML = '';
-
-      if (this.value === 'self') {
-
-        selfSection.style.display = 'block';
-        otherSection.style.display = 'none';
-
-      } else {
-
-        selfSection.style.display = 'none';
-        otherSection.style.display = 'block';
-
-        initializeBookingMap();
-
-      }
-
-    });
-
-  });
-
-  // LIVE LOCATION
-  if (liveBtn) {
-
-    liveBtn.addEventListener('click', () => {
-
-      if (!navigator.geolocation) {
-
-        alert('Geolocation not supported');
-
+  if (proceedBtn) {
+    proceedBtn.addEventListener('click', function () {
+      if (cart.length === 0) {
+        showToast('Cart is empty. Please add tests first.', 'warning');
         return;
       }
+      closeCart();
+      var sec = document.getElementById('appointment');
+      if (sec) window.scrollTo({ top: sec.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
+      var notesEl = document.getElementById('pt-notes');
+      if (notesEl) {
+        notesEl.value = 'Tests from cart:\n'
+          + cart.map(function (i) { return '- ' + i.name + ' (₹' + i.price + ')'; }).join('\n');
+      }
+    });
+  }
 
-      liveBtn.innerHTML = 'Fetching Live Location...';
+  /* Re-compute total when collection type changes */
+  document.querySelectorAll('input[name="collection"]').forEach(function (r) {
+    r.addEventListener('change', updateCartUI);
+  });
+
+  updateCartUI(); /* initial render */
+
+  /* ──────────────────────────────────────────────────────────────
+     4. VIEW-ALL TOGGLE
+  ────────────────────────────────────────────────────────────── */
+  document.querySelectorAll('.view-all-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var card   = this.closest('.test-category-card');
+      var hidden = card && card.querySelector('.hidden-tests');
+      if (!hidden) return;
+      if (!this.hasAttribute('data-orig')) this.setAttribute('data-orig', this.innerHTML);
+      var isOpen = hidden.style.display === 'block';
+      hidden.style.display = isOpen ? 'none' : 'block';
+      this.innerHTML = isOpen ? this.getAttribute('data-orig') : 'Show Less <i class="fas fa-chevron-up"></i>';
+    });
+  });
+
+  /* ──────────────────────────────────────────────────────────────
+     5. UPI SECTION TOGGLE
+  ────────────────────────────────────────────────────────────── */
+  var upiSection = document.getElementById('upi-section');
+  document.querySelectorAll('input[name="payment"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      if (upiSection) upiSection.style.display = this.value === 'upi' ? 'block' : 'none';
+    });
+  });
+
+  /* ──────────────────────────────────────────────────────────────
+     6. BOOKING-TYPE RADIO — show correct location UI
+  ────────────────────────────────────────────────────────────── */
+  var selfSection  = document.getElementById('self-location-section');
+  var otherSection = document.getElementById('other-location-section');
+  var bookingSelf  = document.getElementById('booking-self');
+  var bookingOther = document.getElementById('booking-other');
+
+  var bookingMode = null; /* 'self' | 'other' — null until chosen */
+
+  function onBookingTypeChange() {
+    bookingMode = document.querySelector('input[name="bookingFor"]:checked') &&
+                  document.querySelector('input[name="bookingFor"]:checked').value;
+
+    /* Reset coords whenever mode switches */
+    resetLocationState();
+
+    if (bookingMode === 'self') {
+      selfSection.style.display  = 'block';
+      otherSection.style.display = 'none';
+    } else if (bookingMode === 'other') {
+      selfSection.style.display  = 'none';
+      otherSection.style.display = 'block';
+      initBookingMap(); /* lazy-init the Leaflet map */
+    }
+  }
+
+  if (bookingSelf)  bookingSelf.addEventListener('change',  onBookingTypeChange);
+  if (bookingOther) bookingOther.addEventListener('change', onBookingTypeChange);
+
+  /* ──────────────────────────────────────────────────────────────
+     7. MODE A — GPS LIVE LOCATION
+  ────────────────────────────────────────────────────────────── */
+  var liveBtn    = document.getElementById('get-live-location');
+  var latInput   = document.getElementById('latitude');
+  var lngInput   = document.getElementById('longitude');
+  var liveStatus = document.getElementById('live-location-status');
+
+  if (liveBtn) {
+    liveBtn.addEventListener('click', function () {
+      if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser. Please use a modern browser.');
+        return;
+      }
+      liveBtn.disabled   = true;
+      liveBtn.innerHTML  = '<i class="fas fa-spinner fa-spin"></i> Fetching location…';
 
       navigator.geolocation.getCurrentPosition(
+        function (pos) {
+          latInput.value = pos.coords.latitude;
+          lngInput.value = pos.coords.longitude;
 
-        (position) => {
+          liveStatus.innerHTML = statusBox('success',
+            '<i class="fas fa-check-circle"></i> Location captured successfully!<br>'
+            + '<small>Lat: ' + pos.coords.latitude.toFixed(6)
+            + ' | Lng: ' + pos.coords.longitude.toFixed(6) + '</small>');
 
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-
-          latitudeInput.value = lat;
-          longitudeInput.value = lng;
-
-          locationTypeInput.value = 'live-location';
-
-          liveStatus.innerHTML = `
-            <div class="location-success">
-              <i class="fas fa-check-circle"></i>
-              Live location shared successfully
-            </div>
-
-            <div class="location-coords">
-              Latitude: ${lat.toFixed(6)} <br>
-              Longitude: ${lng.toFixed(6)}
-            </div>
-          `;
-
-          liveBtn.innerHTML = `
-            <i class="fas fa-check"></i>
-            Location Shared
-          `;
-
+          liveBtn.innerHTML         = '<i class="fas fa-check-circle"></i> Location Shared';
+          liveBtn.style.background  = '#22c55e';
+          liveBtn.style.color       = '#fff';
+          liveBtn.style.borderColor = '#22c55e';
+          liveBtn.disabled          = false;
         },
-
-        () => {
-
-          alert('Please allow location permission.');
-
-          liveBtn.innerHTML = `
-            <i class="fas fa-location-crosshairs"></i>
-            Share Current Location
-          `;
-
-        }
-
+        function () {
+          liveStatus.innerHTML = statusBox('error',
+            '<i class="fas fa-exclamation-circle"></i> Could not get location. '
+            + 'Please allow location permission in your browser and try again.');
+          liveBtn.innerHTML  = '<i class="fas fa-location-crosshairs"></i> Share Current Location';
+          liveBtn.disabled   = false;
+        },
+        { timeout: 10000 }
       );
-
     });
-
   }
 
-  // MAP
-  function initializeBookingMap() {
+  /* ──────────────────────────────────────────────────────────────
+     8. MODE B — LEAFLET MAP PICKER (Booking For Someone Else)
+  ────────────────────────────────────────────────────────────── */
+  var bookingMap     = null; /* Leaflet map instance */
+  var bookingMarker  = null; /* draggable pin */
+  var mapInitialised = false;
+  var mapStatus      = document.getElementById('map-location-status');
 
-    if (bookingMap) {
+  function initBookingMap() {
+    if (mapInitialised || typeof L === 'undefined') return;
+    mapInitialised = true;
 
-      setTimeout(() => {
-        bookingMap.invalidateSize();
-      }, 300);
-
-      return;
-    }
-
-    bookingMap = L.map('booking-map').setView([25.460547, 78.5776043], 13);
-
+    bookingMap = L.map('booking-map').setView([LAB_LAT, LAB_LNG], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-
-      attribution: '© OpenStreetMap contributors'
-
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
     }).addTo(bookingMap);
 
-    bookingMap.on('click', function(e) {
+    /* Lab marker */
+    L.marker([LAB_LAT, LAB_LNG], {
+      icon: L.icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        iconSize: [25, 41], iconAnchor: [12, 41]
+      })
+    }).addTo(bookingMap).bindPopup('<strong>Roosia Pathology Lab</strong>').openPopup();
 
-      const lat = e.latlng.lat;
-      const lng = e.latlng.lng;
+    /* Service area circle */
+    L.circle([LAB_LAT, LAB_LNG], {
+      radius: SERVICE_RADIUS_KM * 1000,
+      color: '#C8102E', fillColor: '#C8102E', fillOpacity: 0.08, weight: 2, dashArray: '6,4'
+    }).addTo(bookingMap).bindTooltip('5 km service area');
 
-      latitudeInput.value = lat;
-      longitudeInput.value = lng;
+    /* Click to pin */
+    bookingMap.on('click', function (e) {
+      var lat = e.latlng.lat;
+      var lng = e.latlng.lng;
 
-      locationTypeInput.value = 'manual-map';
+      latInput.value = lat;
+      lngInput.value = lng;
 
       if (bookingMarker) {
-
-        bookingMap.removeLayer(bookingMarker);
-
+        bookingMarker.setLatLng(e.latlng);
+      } else {
+        bookingMarker = L.marker(e.latlng, { draggable: true }).addTo(bookingMap);
+        bookingMarker.on('dragend', function () {
+          var pos = bookingMarker.getLatLng();
+          latInput.value = pos.lat;
+          lngInput.value = pos.lng;
+          updateMapStatus(pos.lat, pos.lng);
+        });
       }
-
-      bookingMarker = L.marker([lat, lng], {
-
-        draggable: true
-
-      }).addTo(bookingMap);
-
-      bookingMarker.on('dragend', function(event) {
-
-        const pos = event.target.getLatLng();
-
-        latitudeInput.value = pos.lat;
-        longitudeInput.value = pos.lng;
-
-      });
-
-      manualStatus.innerHTML = `
-        <div class="location-success">
-          <i class="fas fa-check-circle"></i>
-          Patient location pinned successfully
-        </div>
-
-        <div class="location-coords">
-          Latitude: ${lat.toFixed(6)} <br>
-          Longitude: ${lng.toFixed(6)}
-        </div>
-      `;
-
+      updateMapStatus(lat, lng);
     });
 
+    /* Force Leaflet to render correctly (container was hidden) */
+    setTimeout(function () { bookingMap.invalidateSize(); }, 100);
   }
 
-  // STRICT VALIDATION
-  const appointmentForm = document.getElementById('appointment-form');
+  function updateMapStatus(lat, lng) {
+    var dist = getDistanceKm(LAB_LAT, LAB_LNG, lat, lng);
+    var inArea = dist <= SERVICE_RADIUS_KM;
+    mapStatus.innerHTML = statusBox(
+      inArea ? 'success' : 'error',
+      '<i class="fas fa-' + (inArea ? 'check-circle' : 'exclamation-circle') + '"></i> '
+      + (inArea
+        ? 'Location is within service area (' + dist.toFixed(2) + ' km from lab). ✓'
+        : 'Location is outside service area (' + dist.toFixed(2) + ' km from lab). We do not serve this area yet.')
+    );
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     HELPER — reset location state when mode switches
+  ────────────────────────────────────────────────────────────── */
+  function resetLocationState() {
+    if (latInput)  latInput.value  = '';
+    if (lngInput)  lngInput.value  = '';
+    if (liveStatus) liveStatus.innerHTML = '';
+    if (mapStatus)  mapStatus.innerHTML  = '';
+
+    /* Reset live button */
+    if (liveBtn) {
+      liveBtn.innerHTML         = '<i class="fas fa-location-crosshairs"></i> Share Current Location';
+      liveBtn.style.background  = '';
+      liveBtn.style.color       = '';
+      liveBtn.style.borderColor = '';
+      liveBtn.disabled          = false;
+    }
+
+    /* Reset map marker */
+    if (bookingMarker && bookingMap) {
+      bookingMap.removeLayer(bookingMarker);
+      bookingMarker = null;
+    }
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     9. HAVERSINE DISTANCE
+  ────────────────────────────────────────────────────────────── */
+  function getDistanceKm(lat1, lon1, lat2, lon2) {
+    var R    = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLon = (lon2 - lon1) * Math.PI / 180;
+    var a    = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+              + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
+              * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     10. APPOINTMENT FORM SUBMIT
+  ────────────────────────────────────────────────────────────── */
+  var appointmentForm = document.getElementById('appointment-form');
 
   if (appointmentForm) {
-
-    appointmentForm.addEventListener('submit', function(e) {
-
+    appointmentForm.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      const bookingType = document.querySelector('input[name="bookingFor"]:checked');
+      /* — Read all fields — */
+      var name     = document.getElementById('pt-name').value.trim();
+      var phone    = document.getElementById('pt-phone').value.trim();
+      var email    = (document.getElementById('pt-email') || {}).value || '';
+      var address  = document.getElementById('pt-address').value.trim();
+      var notes    = document.getElementById('pt-notes').value.trim();
+      var lat      = latInput.value.trim();
+      var lng      = lngInput.value.trim();
 
-      if (!bookingType) {
+      var collection = (document.querySelector('input[name="collection"]:checked') || {}).value || 'home';
+      var date       = (document.querySelector('input[name="date"]')               || {}).value || '';
+      var time       = (document.querySelector('select[name="time"]')              || {}).value || '';
+      var category   = (document.querySelector('select[name="category"]')          || {}).value || '';
+      var payment    = (document.querySelector('input[name="payment"]:checked')    || {}).value || 'cod';
 
-        alert('Please select booking type.');
+      /* — Validate basic fields — */
+      if (!name)    { showToast('Please enter patient name.',    'warning'); document.getElementById('pt-name').focus(); return; }
+      if (!phone)   { showToast('Please enter phone number.',    'warning'); document.getElementById('pt-phone').focus(); return; }
+      if (!address) { showToast('Please enter patient address.', 'warning'); document.getElementById('pt-address').focus(); return; }
+      if (!date)    { showToast('Please select preferred date.', 'warning'); return; }
+      if (!time)    { showToast('Please select preferred time.', 'warning'); return; }
 
+      /* — Booking type must be selected — */
+      if (!bookingMode) {
+        showToast('Please select who this booking is for.', 'warning');
+        document.getElementById('booking-self').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
 
-      if (!latitudeInput.value || !longitudeInput.value) {
-
-        if (bookingType.value === 'self') {
-
-          alert('Please share your current live location.');
-
+      /* — Location must be captured — */
+      if (!lat || !lng) {
+        if (bookingMode === 'self') {
+          showToast('Please share your GPS location first.', 'warning');
+          liveBtn && liveBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
-
-          alert('Please mark patient location on map.');
-
+          showToast('Please tap on the map to pin the patient\'s location first.', 'warning');
+          document.getElementById('booking-map').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-
         return;
       }
-// LAB LOCATION
-const LAB_LAT = 25.460547;
-const LAB_LNG = 78.5776043;
-const RADIUS_KM = 5;
 
-// DISTANCE FUNCTION
-function getDistanceKm(lat1, lon1, lat2, lon2) {
+      /* — 5 km radius check — */
+      var dist = getDistanceKm(LAB_LAT, LAB_LNG, parseFloat(lat), parseFloat(lng));
+      if (dist > SERVICE_RADIUS_KM) {
+        alert(
+          '❌ Sorry, we are currently not serving in this area.\n\n'
+          + 'Distance from our lab: ' + dist.toFixed(2) + ' km\n'
+          + 'Service area: ' + SERVICE_RADIUS_KM + ' km\n\n'
+          + 'Please contact us directly at +91 8467812558.'
+        );
+        return;
+      }
 
-  const R = 6371;
+      /* — Cart summary — */
+      var homeCharge  = collection === 'home' ? 50 : 0;
+      var testsTotal  = cart.reduce(function (s, i) { return s + i.price; }, 0);
+      var grandTotal  = testsTotal + homeCharge;
+      var selectedTests = cart.length > 0
+        ? cart.map(function (i) { return i.name + ' (₹' + i.price + ')'; }).join(', ')
+        : 'No tests selected from cart — see notes.';
 
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
+      var mapsLink = 'https://www.google.com/maps?q=' + lat + ',' + lng;
 
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) *
-    Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) *
-    Math.sin(dLon / 2);
+      /* — Disable submit — */
+      var submitBtn = appointmentForm.querySelector('button[type="submit"]');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending…'; }
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      /* — Send owner notification via EmailJS — */
+      emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          /* Patient info */
+          patient_name     : name,
+          patient_phone    : phone,
+          patient_email    : email.trim(),
+          patient_address  : address,
+          patient_notes    : notes || 'None',
+          /* Booking details */
+          booking_for      : bookingMode === 'self' ? 'Booking For Themselves' : 'Booking For Someone Else',
+          selected_tests   : selectedTests,
+          test_category    : category,
+          preferred_date   : date,
+          preferred_time   : time,
+          collection_type  : collection === 'home' ? 'Home Collection' : 'Walk-In',
+          payment_method   : payment === 'upi' ? 'UPI' : 'Cash on Delivery',
+          /* Financials */
+          tests_total      : '₹' + testsTotal,
+          home_charge      : '₹' + homeCharge,
+          total_amount     : '₹' + grandTotal,
+          /* Location */
+          latitude         : lat,
+          longitude        : lng,
+          distance_from_lab: dist.toFixed(2) + ' km',
+          google_maps_link : mapsLink
+        }
+      ).then(function () {
 
-  return R * c;
-}
+        /* SUCCESS */
+        alert(
+          '✅ Booking request sent successfully!\n\n'
+          + 'The lab team will review your request and call you at ' + phone + ' to confirm your appointment.\n\n'
+          + 'Thank you for choosing Roosia Pathology!'
+        );
 
-// CHECK DISTANCE
-const customerLat = parseFloat(latitudeInput.value);
-const customerLng = parseFloat(longitudeInput.value);
+        /* Full reset */
+        appointmentForm.reset();
+        cart = [];
+        updateCartUI();
+        bookingMode = null;
+        resetLocationState();
+        if (selfSection)  selfSection.style.display  = 'none';
+        if (otherSection) otherSection.style.display = 'none';
+        if (upiSection)   upiSection.style.display   = 'none';
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Book Appointment'; }
 
-const distance = getDistanceKm(
-  LAB_LAT,
-  LAB_LNG,
-  customerLat,
-  customerLng
-);
-if (distance > RADIUS_KM) {
+      }).catch(function (err) {
 
-  showToast(
-    'Currently we are not serving in this area.',
-    'error'
-  );
+        console.error('EmailJS error:', err);
+        alert(
+          '❌ Failed to send booking request.\n\n'
+          + 'Please call us directly:\n+91 8467812558\n\nWe apologise for the inconvenience.'
+        );
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Book Appointment'; }
 
-  console.log('Booking Rejected');
-
-  return false;
-}
-console.log('Distance:', distance);
-
-
-// PATIENT DETAILS
-const patientName =
-document.querySelector('input[name="name"]').value;
-
-const patientPhone =
-document.querySelector('input[name="phone"]').value;
-
-const patientAddress =
-document.querySelector('input[name="address"]').value;
-
-const patientNotes =
-document.querySelector('textarea[name="notes"]').value;
-
-const paymentMode =
-document.querySelector('input[name="payment"]:checked')?.value || 'Not Selected';
-
-// TESTS
-const patientTests = cart.map(item =>
-`${item.name} - ₹${item.price}`
-).join(', ');
-
-// GOOGLE MAP LINK
-const patientLocation =
-`https://maps.google.com/?q=${customerLat},${customerLng}`;
-
-// SEND EMAIL
-emailjs.send(
-'roosiapathology',
-'template_dc4vb8x',
-{
-  patient_name: patientName,
-  patient_phone: patientPhone,
-  patient_address: patientAddress,
-  patient_tests: patientTests,
-  patient_distance: `${distance.toFixed(2)} KM`,
-  payment_mode: paymentMode,
-  patient_notes: patientNotes,
-  patient_location: patientLocation
-}
-)
-.then(() => {
-
-  this.reset();
-
-  alert('Request sent to the lab successfully!');
-
-})
-.catch((error) => {
-
-  console.log(error);
-
-  alert('Booking failed. Please try again.');
-
-});
-
+      });
     });
-
   }
 
-});
+  /* ──────────────────────────────────────────────────────────────
+     11. TOAST NOTIFICATIONS
+  ────────────────────────────────────────────────────────────── */
+  function showToast(msg, type) {
+    var t = document.createElement('div');
+    t.className   = 'toast toast-' + (type || 'success');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function () { t.classList.add('show'); }, 10);
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 300); }, 3000);
+  }
+  window.showToast = showToast;
+
+  /* ──────────────────────────────────────────────────────────────
+     12. CONTACT MAP — lab location display
+  ────────────────────────────────────────────────────────────── */
+  if (document.getElementById('shop-map') && typeof L !== 'undefined') {
+    var shopMap = L.map('shop-map').setView([LAB_LAT, LAB_LNG], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(shopMap);
+    L.marker([LAB_LAT, LAB_LNG])
+      .addTo(shopMap)
+      .bindPopup('<strong>Roosia Pathology</strong><br>45, Taksal, Kotwali Ke Samne wali Dhal, Jhansi')
+      .openPopup();
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     HELPER — coloured status box
+  ────────────────────────────────────────────────────────────── */
+  function statusBox(type, html) {
+    var colors = {
+      success: { bg: '#f0fdf4', border: '#22c55e', text: '#15803d' },
+      error:   { bg: '#fff1f2', border: '#f43f5e', text: '#be123c' },
+      info:    { bg: '#eff6ff', border: '#3b82f6', text: '#1d4ed8' }
+    };
+    var c = colors[type] || colors.info;
+    return '<div style="padding:12px 16px;background:' + c.bg + ';border:1px solid ' + c.border
+      + ';border-radius:8px;color:' + c.text + ';font-size:14px;line-height:1.5;">'
+      + html + '</div>';
+  }
+
+}); /* END DOMContentLoaded */
