@@ -472,70 +472,12 @@ if (distance > RADIUS_KM) {
 
   return false;
 }
+
 console.log('Distance:', distance);
-// CUSTOMER DETAILS
-const customerName =
-document.querySelector('input[name="name"]').value;
 
-const customerPhone =
-document.querySelector('input[name="phone"]').value;
-
-const customerAddress =
-document.querySelector('input[name="address"]').value;
-
-const customerNotes =
-document.querySelector('textarea[name="notes"]').value;
-
-// SELECTED TESTS
-const orderedTests = cart.map(item =>
-`${item.name} - ₹${item.price}`
-).join('%0A');
-
-// TOTAL
-const totalAmount = cart.reduce(
-(sum, item) => sum + item.price,
-0
-);
-
-// GOOGLE MAP LINK
-const mapLink =
-`https://maps.google.com/?q=${customerLat},${customerLng}`;
-
-// WHATSAPP MESSAGE
-const whatsappMessage =
-`*NEW TEST BOOKING*%0A%0A` +
-
-`👤 Name: ${customerName}%0A` +
-`📞 Phone: ${customerPhone}%0A` +
-`📍 Address: ${customerAddress}%0A%0A` +
-
-`🧪 Tests:%0A${orderedTests}%0A%0A` +
-
-`💰 Total: ₹${totalAmount}%0A` +
-`📏 Distance: ${distance.toFixed(2)} KM%0A%0A` +
-
-`📝 Notes:%0A${customerNotes}%0A%0A` +
-
-`📍 Live Location:%0A${mapLink}`;
-
-// YOUR WHATSAPP NUMBER
-const ownerWhatsApp = "918467812558";
-
-// OPEN WHATSAPP
-window.open(
-`https://wa.me/${ownerWhatsApp}?text=${whatsappMessage}`,
-'_blank'
-);
-      
-
-      this.reset();
-alert(
-`Appointment booked successfully!
-
-Tests Amount: ₹${total - homeCharge}
-Home Collection Charge: ₹${homeCharge}
-Final Amount: ₹${total}`
-);
+    this.reset();
+    
+alert('Appointment booked successfully!');  
     });
 
   }
