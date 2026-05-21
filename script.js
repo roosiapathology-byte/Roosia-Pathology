@@ -475,27 +475,12 @@ if (distance > RADIUS_KM) {
 
 console.log('Distance:', distance);
 
-    this.reset();
-    
-alert('Appointment booked successfully!');  
+this.reset();
+
+alert('Appointment booked successfully!');
+
     });
 
   }
-
-});
-// SHOP CONTACT MAP
-
-document.addEventListener('DOMContentLoaded', function () {
-
-  const shopMap = L.map('shop-map').setView([25.4607882,78.5749081], 15);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(shopMap);
-
-  L.marker([25.4607882,78.5749081])
-    .addTo(shopMap)
-    .bindPopup('Roosia Pathology')
-    .openPopup();
 
 });
