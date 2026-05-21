@@ -475,9 +475,61 @@ if (distance > RADIUS_KM) {
 
 console.log('Distance:', distance);
 
-this.reset();
 
-alert('Appointment booked successfully!');
+// PATIENT DETAILS
+const patientName =
+document.querySelector('input[name="name"]').value;
+
+const patientPhone =
+document.querySelector('input[name="phone"]').value;
+
+const patientAddress =
+document.querySelector('input[name="address"]').value;
+
+const patientNotes =
+document.querySelector('textarea[name="notes"]').value;
+
+const paymentMode =
+document.querySelector('input[name="payment"]:checked')?.value || 'Not Selected';
+
+// TESTS
+const patientTests = cart.map(item =>
+`${item.name} - ₹${item.price}`
+).join(', ');
+
+// GOOGLE MAP LINK
+const patientLocation =
+`https://maps.google.com/?q=${customerLat},${customerLng}`;
+
+// SEND EMAIL
+emailjs.send(
+'roosiapathology',
+'template_dc4vb8x',
+{
+  patient_name: patientName,
+  patient_phone: patientPhone,
+  patient_address: patientAddress,
+  patient_tests: patientTests,
+  patient_distance: `${distance.toFixed(2)} KM`,
+  payment_mode: paymentMode,
+  patient_notes: patientNotes,
+  patient_location: patientLocation
+}
+)
+.then(() => {
+
+  this.reset();
+
+  alert('Request sent to the lab successfully!');
+
+})
+.catch((error) => {
+
+  console.log(error);
+
+  alert('Booking failed. Please try again.');
+
+});
 
     });
 
