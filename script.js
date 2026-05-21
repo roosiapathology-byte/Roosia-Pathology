@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var appointmentForm = document.getElementById('appointment-form');
 
   if (appointmentForm) {
-    appointmentForm.addEventListener('submit', function (e) {
+    appointmentForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       /* — Read all fields — */
@@ -519,6 +519,24 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
         /* Full reset */
+        // Save booking to Firebase
+const bookingData = {
+  patientName: name,
+  phone: phone,
+  address: address,
+  notes: notes,
+  latitude: customerLat,
+  longitude: customerLng,
+  totalAmount: total,
+  tests: cart.map(item => item.name),
+  paymentMethod: paymentMethod
+};
+
+const firebaseSaved = await window.saveBookingToFirebase(bookingData);
+
+if (!firebaseSaved) {
+  alert("Firebase save failed");
+}
         appointmentForm.reset();
         cart = [];
         updateCartUI();
