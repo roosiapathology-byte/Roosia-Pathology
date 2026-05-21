@@ -805,17 +805,21 @@
 
 <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    (function () { emailjs.init("b2DM-kTOOC1BD4POc"); })();
+  </script>
 
-<script>
-(function () {
-  emailjs.init("b2DM-kTOOC1BD4POc");
-})();
-</script>
+  <!-- Firebase Compat SDK (v9 compat = works as plain <script>, no bundler needed) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-<!-- Custom JS -->
-<script src="script.js"></script>
-<script type="module" src="firebase.js"></script>
+  <!-- Firebase integration (must be after Firebase SDK) -->
+  <script src="firebase.js"></script>
+
+  <!-- Main JS (must be last) -->
+  <script src="script.js"></script>
 </body>
 </html>
