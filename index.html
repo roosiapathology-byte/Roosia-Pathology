@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roosia Pathology - Trusted Diagnostics in Jhansi</title>
+  <meta name="description" content="Roosia Pathology in Jhansi provides accurate, affordable, and trusted diagnostic services with home collection available.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 1. NAVBAR -->
+  <nav id="navbar" class="navbar">
+    <div class="nav-container">
+      <a href="#home" class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2V22M2 12H22" stroke="#C8102E" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <span class="logo-text"><span>Roosia</span> <span class="text-red">Pathology</span></span>
+      </a>
+      
+      <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#tests">Test Prices</a>
+        <a href="#packages">Packages</a>
+        <a href="#doctors">Doctors</a>
+        <a href="#gallery">Photos</a>
+        <a href="#contact">Contact</a>
+      </div>
+      
+      <div class="nav-actions">
+        <button id="cart-btn" class="cart-btn" aria-label="Cart">
+          <i class="fas fa-shopping-cart"></i>
+          <span id="cart-count">0</span>
+        </button>
+        <a href="#appointment" class="btn btn-primary hidden-mobile">Book Test</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 2. HERO -->
+  <section id="home" class="hero section">
+    <div class="hero-container container">
+      <div class="hero-content">
+        <span class="badge">Jhansi's Trusted Diagnostic Lab</span>
+        <h1>Precision Diagnostics You Can Trust</h1>
+        <p>Experience world-class pathology services with fast, accurate results. Your health is our priority.</p>
+        <div class="hero-buttons">
+          <a href="#appointment" class="btn btn-primary">Book a Test</a>
+          <a href="#tests" class="btn btn-outline">Explore Tests</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-image-container">
+
+  <img 
+    src="lab-image.jpg" 
+    alt="Roosia Pathology Lab"
+    class="hero-image"
+  >
+      </div>
+    </div>
+    <div class="statistics-bar container">
+      <div class="stat-item">
+        <div class="stat-num">50,000+</div>
+        <div class="stat-label">Tests Conducted</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">15+</div>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">200+</div>
+        <div class="stat-label">Tests Available</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">10,000+</div>
+        <div class="stat-label">Happy Families</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. ABOUT -->
+  <section id="about" class="about section bg-light">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-subtitle">About Us</span>
+        <h2>Why Choose Roosia Pathology?</h2>
+      </div>
+      <div class="about-grid">
+        <div class="about-content">
+          <p>Founded in Jhansi, Roosia Pathology is dedicated to providing high-quality, affordable diagnostic services. We use state-of-the-art technology to ensure that every test result is accurate and reliable.</p>
+          <p>Our experienced team of pathologists and technicians are committed to delivering the best patient care, from hassle-free sample collection to quick report delivery.</p>
+          <ul class="checkmark-list">
+            <li><i class="fas fa-check-circle"></i> Accurate Testing</li>
+            <li><i class="fas fa-check-circle"></i> Affordable Rates</li>
+            <li><i class="fas fa-check-circle"></i> Home Collection</li>
+            <li><i class="fas fa-check-circle"></i> Fast Reports</li>
+            <li><i class="fas fa-check-circle"></i> Digital Reports on WhatsApp</li>
+            <li><i class="fas fa-check-circle"></i> Experienced Staff</li>
+          </ul>
+        </div>
+        <div class="about-stats-grid">
+          <div class="stat-card">
+            <i class="fas fa-award"></i>
+            <h4>Certified Lab</h4>
+            <p>ISO & NABL Standards</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-user-md"></i>
+            <h4>Expert Doctors</h4>
+            <p>Specialized Pathologists</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-clock"></i>
+            <h4>Fast Results</h4>
+            <p>Same day reporting for most tests</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-home"></i>
+            <h4>Home Collection</h4>
+            <p>Safe and hygienic process</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- 5. TEST PRICES -->
+  <section id="tests" class="tests section bg-light">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-subtitle">Affordable Care</span>
+        <h2>Test Price List</h2>
+        <p class="intro-text">Transparent pricing. No hidden charges.</p>
+      </div>
+      <div class="tests-grid">
+        
+        <!-- HEMATOLOGY -->
+        <div class="test-category-card">
+          <div class="category-header">
+            <i class="fas fa-tint"></i>
+            <h3>Hematology</h3>
+            <span class="test-count">17 Tests</span>
+          </div>
+          <div class="test-list">
+            <div class="test-row"><span class="test-name">Hemoglobin (Hb%)</span><span class="test-price">₹100</span><button class="book-btn" data-test="Hemoglobin (Hb%)" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">TLC</span><span class="test-price">₹100</span><button class="book-btn" data-test="TLC" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">DLC</span><span class="test-price">₹100</span><button class="book-btn" data-test="DLC" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">ESR</span><span class="test-price">₹100</span><button class="book-btn" data-test="ESR" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">Malaria (MP)</span><span class="test-price">₹150</span><button class="book-btn" data-test="Malaria (MP)" data-price="150">Book</button></div>
+          </div>
+          <div class="hidden-tests" style="display:none">
+            <div class="test-row"><span class="test-name">CBC</span><span class="test-price">₹400</span><button class="book-btn" data-test="CBC" data-price="400">Book</button></div>
+            <div class="test-row"><span class="test-name">QBC (MP)</span><span class="test-price">₹250</span><button class="book-btn" data-test="QBC (MP)" data-price="250">Book</button></div>
+            <div class="test-row"><span class="test-name">GBP</span><span class="test-price">₹800</span><button class="book-btn" data-test="GBP" data-price="800">Book</button></div>
+            <div class="test-row"><span class="test-name">Bone Marrow Examination</span><span class="test-price">₹1500</span><button class="book-btn" data-test="Bone Marrow Examination" data-price="1500">Book</button></div>
+            <div class="test-row"><span class="test-name">BT & CT</span><span class="test-price">₹200</span><button class="book-btn" data-test="BT & CT" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">Platelet Count</span><span class="test-price">₹300</span><button class="book-btn" data-test="Platelet Count" data-price="300">Book</button></div>
+            <div class="test-row"><span class="test-name">Prothrombin Time (PT) INR</span><span class="test-price">₹400</span><button class="book-btn" data-test="Prothrombin Time (PT) INR" data-price="400">Book</button></div>
+            <div class="test-row"><span class="test-name">Partial Thromboplastin Time (APTT)</span><span class="test-price">₹500</span><button class="book-btn" data-test="Partial Thromboplastin Time (APTT)" data-price="500">Book</button></div>
+            <div class="test-row"><span class="test-name">Absolute Eosinophil Count (AEC)</span><span class="test-price">₹250</span><button class="book-btn" data-test="Absolute Eosinophil Count (AEC)" data-price="250">Book</button></div>
+            <div class="test-row"><span class="test-name">Blood Group (ABO Rh)</span><span class="test-price">₹150</span><button class="book-btn" data-test="Blood Group (ABO Rh)" data-price="150">Book</button></div>
+            <div class="test-row"><span class="test-name">Coombs Test (Direct)</span><span class="test-price">₹600</span><button class="book-btn" data-test="Coombs Test (Direct)" data-price="600">Book</button></div>
+            <div class="test-row"><span class="test-name">Coombs Test (Indirect)</span><span class="test-price">₹800</span><button class="book-btn" data-test="Coombs Test (Indirect)" data-price="800">Book</button></div>
+          </div>
+          <button class="view-all-btn">View All 17 Tests <i class="fas fa-chevron-down"></i></button>
+        </div>
+
+        <!-- URINE ANALYSIS -->
+        <div class="test-category-card">
+          <div class="category-header">
+            <i class="fas fa-vial"></i>
+            <h3>Urine Analysis</h3>
+            <span class="test-count">7 Tests</span>
+          </div>
+          <div class="test-list">
+            <div class="test-row"><span class="test-name">Urine (Complete)</span><span class="test-price">₹300</span><button class="book-btn" data-test="Urine (Complete)" data-price="300">Book</button></div>
+            <div class="test-row"><span class="test-name">Routine & M/E</span><span class="test-price">₹200</span><button class="book-btn" data-test="Routine & M/E" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">Chyle</span><span class="test-price">₹300</span><button class="book-btn" data-test="Chyle" data-price="300">Book</button></div>
+            <div class="test-row"><span class="test-name">Ketones</span><span class="test-price">₹100</span><button class="book-btn" data-test="Ketones" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">Bile Salts</span><span class="test-price">₹150</span><button class="book-btn" data-test="Bile Salts" data-price="150">Book</button></div>
+          </div>
+          <div class="hidden-tests" style="display:none">
+            <div class="test-row"><span class="test-name">Bile Pigments</span><span class="test-price">₹150</span><button class="book-btn" data-test="Bile Pigments" data-price="150">Book</button></div>
+            <div class="test-row"><span class="test-name">24 Hrs Protein</span><span class="test-price">₹300</span><button class="book-btn" data-test="24 Hrs Protein" data-price="300">Book</button></div>
+          </div>
+          <button class="view-all-btn">View All 7 Tests <i class="fas fa-chevron-down"></i></button>
+        </div>
+
+        <!-- STOOL EXAMINATION -->
+        <div class="test-category-card">
+          <div class="category-header">
+            <i class="fas fa-poop"></i>
+            <h3>Stool Examination</h3>
+            <span class="test-count">4 Tests</span>
+          </div>
+          <div class="test-list">
+            <div class="test-row"><span class="test-name">Routine (Ova/Cyst)</span><span class="test-price">₹300</span><button class="book-btn" data-test="Routine (Ova/Cyst)" data-price="300">Book</button></div>
+            <div class="test-row"><span class="test-name">Occult Blood</span><span class="test-price">₹250</span><button class="book-btn" data-test="Occult Blood" data-price="250">Book</button></div>
+            <div class="test-row"><span class="test-name">Reducin Sugar</span><span class="test-price">₹200</span><button class="book-btn" data-test="Reducin Sugar" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">PH</span><span class="test-price">₹100</span><button class="book-btn" data-test="PH" data-price="100">Book</button></div>
+          </div>
+          <button class="view-all-btn" style="display:none">View All</button>
+        </div>
+
+        <!-- SEMEN ANALYSIS -->
+        <div class="test-category-card">
+          <div class="category-header">
+            <i class="fas fa-microscope"></i>
+            <h3>Semen Analysis</h3>
+            <span class="test-count">1 Test</span>
+          </div>
+          <div class="test-list">
+            <div class="test-row"><span class="test-name">Semen Analysis</span><span class="test-price">₹500</span><button class="book-btn" data-test="Semen Analysis" data-price="500">Book</button></div>
+          </div>
+          <button class="view-all-btn" style="display:none">View All</button>
+        </div>
+
+        <!-- BIOCHEMISTRY -->
+        <div class="test-category-card">
+          <div class="category-header">
+            <i class="fas fa-flask"></i>
+            <h3>Biochemistry</h3>
+            <span class="test-count">28 Tests</span>
+          </div>
+          <div class="test-list">
+            <div class="test-row"><span class="test-name">Blood Sugar (F,R,PP)</span><span class="test-price">₹100</span><button class="book-btn" data-test="Blood Sugar (F,R,PP)" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">Blood Urea</span><span class="test-price">₹100</span><button class="book-btn" data-test="Blood Urea" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Creatinine</span><span class="test-price">₹100</span><button class="book-btn" data-test="S. Creatinine" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Bilirubin (Total)</span><span class="test-price">₹100</span><button class="book-btn" data-test="S. Bilirubin (Total)" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Bilirubin (Total & Direct)</span><span class="test-price">₹200</span><button class="book-btn" data-test="S. Bilirubin (Total & Direct)" data-price="200">Book</button></div>
+          </div>
+          <div class="hidden-tests" style="display:none">
+            <div class="test-row"><span class="test-name">S. Cholesterol</span><span class="test-price">₹200</span><button class="book-btn" data-test="S. Cholesterol" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Triglyceride</span><span class="test-price">₹300</span><button class="book-btn" data-test="S. Triglyceride" data-price="300">Book</button></div>
+            <div class="test-row"><span class="test-name">HDL-Cholesterol</span><span class="test-price">₹150</span><button class="book-btn" data-test="HDL-Cholesterol" data-price="150">Book</button></div>
+            <div class="test-row"><span class="test-name">LDL Cholesterol</span><span class="test-price">₹150</span><button class="book-btn" data-test="LDL Cholesterol" data-price="150">Book</button></div>
+            <div class="test-row"><span class="test-name">Lipid Profile</span><span class="test-price">₹700</span><button class="book-btn" data-test="Lipid Profile" data-price="700">Book</button></div>
+            <div class="test-row"><span class="test-name">Liver Function Test</span><span class="test-price">₹700</span><button class="book-btn" data-test="Liver Function Test" data-price="700">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Protein (Total)</span><span class="test-price">₹100</span><button class="book-btn" data-test="S. Protein (Total)" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Albumin</span><span class="test-price">₹100</span><button class="book-btn" data-test="S. Albumin" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Protein (Total & Albumin)</span><span class="test-price">₹200</span><button class="book-btn" data-test="S. Protein (Total & Albumin)" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">SGOT</span><span class="test-price">₹100</span><button class="book-btn" data-test="SGOT" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">SGPT</span><span class="test-price">₹100</span><button class="book-btn" data-test="SGPT" data-price="100">Book</button></div>
+            <div class="test-row"><span class="test-name">ALP</span><span class="test-price">₹150</span><button class="book-btn" data-test="ALP" data-price="150">Book</button></div>
+            <div class="test-row"><span class="test-name">KFT</span><span class="test-price">₹800</span><button class="book-btn" data-test="KFT" data-price="800">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Amylase</span><span class="test-price">₹350</span><button class="book-btn" data-test="S. Amylase" data-price="350">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Uric Acid</span><span class="test-price">₹200</span><button class="book-btn" data-test="S. Uric Acid" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Calcium</span><span class="test-price">₹300</span><button class="book-btn" data-test="S. Calcium" data-price="300">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Phosphorous</span><span class="test-price">₹400</span><button class="book-btn" data-test="S. Phosphorous" data-price="400">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Sodium (Na+)</span><span class="test-price">₹250</span><button class="book-btn" data-test="S. Sodium (Na+)" data-price="250">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Potassium (K+)</span><span class="test-price">₹250</span><button class="book-btn" data-test="S. Potassium (K+)" data-price="250">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Na+ & K+</span><span class="test-price">₹400</span><button class="book-btn" data-test="S. Na+ & K+" data-price="400">Book</button></div>
+            <div class="test-row"><span class="test-name">LDH</span><span class="test-price">₹800</span><button class="book-btn" data-test="LDH" data-price="800">Book</button></div>
+            <div class="test-row"><span class="test-name">CPK-MB</span><span class="test-price">₹700</span><button class="book-btn" data-test="CPK-MB" data-price="700">Book</button></div>
+            <div class="test-row"><span class="test-name">CPK (Total)</span><span class="test-price">₹700</span><button class="book-btn" data-test="CPK (Total)" data-price="700">Book</button></div>
+          </div>
+          <button class="view-all-btn">View All 28 Tests <i class="fas fa-chevron-down"></i></button>
+        </div>
+
+        <!-- IMMUNOLOGICAL -->
+        <div class="test-category-card">
+          <div class="category-header">
+            <i class="fas fa-shield-virus"></i>
+            <h3>Immunological</h3>
+            <span class="test-count">17 Tests</span>
+          </div>
+          <div class="test-list">
+            <div class="test-row"><span class="test-name">Trop-T</span><span class="test-price">₹1000</span><button class="book-btn" data-test="Trop-T" data-price="1000">Book</button></div>
+            <div class="test-row"><span class="test-name">Dengue NS1 IgG IgM</span><span class="test-price">₹600</span><button class="book-btn" data-test="Dengue NS1 IgG IgM" data-price="600">Book</button></div>
+            <div class="test-row"><span class="test-name">HIV (I & II)</span><span class="test-price">₹350</span><button class="book-btn" data-test="HIV (I & II)" data-price="350">Book</button></div>
+            <div class="test-row"><span class="test-name">HBsAg</span><span class="test-price">₹150</span><button class="book-btn" data-test="HBsAg" data-price="150">Book</button></div>
+            <div class="test-row"><span class="test-name">HCV</span><span class="test-price">₹350</span><button class="book-btn" data-test="HCV" data-price="350">Book</button></div>
+          </div>
+          <div class="hidden-tests" style="display:none">
+            <div class="test-row"><span class="test-name">Pregnancy Test</span><span class="test-price">₹200</span><button class="book-btn" data-test="Pregnancy Test" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">S. Beta HCG</span><span class="test-price">₹800</span><button class="book-btn" data-test="S. Beta HCG" data-price="800">Book</button></div>
+            <div class="test-row"><span class="test-name">VDRL</span><span class="test-price">₹200</span><button class="book-btn" data-test="VDRL" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">VDRL (in Titer)</span><span class="test-price">₹400</span><button class="book-btn" data-test="VDRL (in Titer)" data-price="400">Book</button></div>
+            <div class="test-row"><span class="test-name">Widal</span><span class="test-price">₹200</span><button class="book-btn" data-test="Widal" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">Elisa for S. Typhi</span><span class="test-price">₹400</span><button class="book-btn" data-test="Elisa for S. Typhi" data-price="400">Book</button></div>
+            <div class="test-row"><span class="test-name">C-Reactive Protein (CRP)</span><span class="test-price">₹400</span><button class="book-btn" data-test="C-Reactive Protein (CRP)" data-price="400">Book</button></div>
+            <div class="test-row"><span class="test-name">C-Reactive Protein (Quantitative)</span><span class="test-price">₹800</span><button class="book-btn" data-test="C-Reactive Protein (Quantitative)" data-price="800">Book</button></div>
+            <div class="test-row"><span class="test-name">ASO Titer</span><span class="test-price">₹400</span><button class="book-btn" data-test="ASO Titer" data-price="400">Book</button></div>
+            <div class="test-row"><span class="test-name">Rheumatoid Factor (RA)</span><span class="test-price">₹200</span><button class="book-btn" data-test="Rheumatoid Factor (RA)" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">Mantoux Test (Mx)</span><span class="test-price">₹200</span><button class="book-btn" data-test="Mantoux Test (Mx)" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">Trop-I Quantitative</span><span class="test-price">₹1500</span><button class="book-btn" data-test="Trop-I Quantitative" data-price="1500">Book</button></div>
+          </div>
+          <button class="view-all-btn">View All 17 Tests <i class="fas fa-chevron-down"></i></button>
+        </div>
+
+        <!-- MICROBIOLOGY -->
+        <div class="test-category-card">
+          <div class="category-header">
+            <i class="fas fa-bacteria"></i>
+            <h3>Microbiology</h3>
+            <span class="test-count">5 Tests</span>
+          </div>
+          <div class="test-list">
+            <div class="test-row"><span class="test-name">Culture & Sensitivity Manual</span><span class="test-price">₹800</span><button class="book-btn" data-test="Culture & Sensitivity Manual" data-price="800">Book</button></div>
+            <div class="test-row"><span class="test-name">Culture & Sensitivity Automation</span><span class="test-price">₹1000</span><button class="book-btn" data-test="Culture & Sensitivity Automation" data-price="1000">Book</button></div>
+            <div class="test-row"><span class="test-name">Blood Culture</span><span class="test-price">₹1200</span><button class="book-btn" data-test="Blood Culture" data-price="1200">Book</button></div>
+            <div class="test-row"><span class="test-name">Gram's Staining</span><span class="test-price">₹200</span><button class="book-btn" data-test="Gram's Staining" data-price="200">Book</button></div>
+            <div class="test-row"><span class="test-name">Sputum for AFB</span><span class="test-price">₹500</span><button class="book-btn" data-test="Sputum for AFB" data-price="500">Book</button></div>
+          </div>
+          <button class="view-all-btn" style="display:none">View All</button>
+        </div>
+
+        <!-- FLUIDS EXAMINATION -->
+        <div class="test-category-card">
+          <div class="category-header">
+            <i class="fas fa-water"></i>
+            <h3>Fluids Examination</h3>
+            <span class="test-count">4 Tests</span>
+          </div>
+          <div class="test-list">
+            <div class="test-row"><span class="test-name">Routine</span><span class="test-price">₹700</span><button class="book-btn" data-test="Routine" data-price="700">Book</button></div>
+            <div class="test-row"><span class="test-name">Malignant Cells</span><span class="test-price">₹800</span><button class="book-btn" data-test="Malignant Cells" data-price="800">Book</button></div>
+            <div class="test-row"><span class="test-name">FNAC</span><span class="test-price">₹1500</span><button class="book-btn" data-test="FNAC" data-price="1500">Book</button></div>
+            <div class="test-row"><span class="test-name">Vaginal Cytology</span><span class="test-price">₹800</span><button class="book-btn" data-test="Vaginal Cytology" data-price="800">Book</button></div>
+          </div>
+          <button class="view-all-btn" style="display:none">View All</button>
+        </div>
+
+        <!-- SPECIAL TESTS -->
+        <div class="test-category-card">
+          <div class="category-header">
+            <i class="fas fa-star"></i>
+            <h3>Special Tests</h3>
+            <span class="test-count">20 Tests</span>
+          </div>
+          <div class="test-list">
+            <div class="test-row"><span class="test-name">T3 T4 TSH</span><span class="test-price">₹600</span><button class="book-btn" data-test="T3 T4 TSH" data-price="600">Book</button></div>
+            <div class="test-row"><span class="test-name">TSH</span><span class="test-price">₹300</span><button class="book-btn" data-test="TSH" data-price="300">Book</button></div>
+            <div class="test-row"><span class="test-name">FREE T3 T4 TSH</span><span class="test-price">₹900</span><button class="book-btn" data-test="FREE T3 T4 TSH" data-price="900">Book</button></div>
+            <div class="test-row"><span class="test-name">TORCH (Complete)</span><span class="test-price">₹1800</span><button class="book-btn" data-test="TORCH (Complete)" data-price="1800">Book</button></div>
+            <div class="test-row"><span class="test-name">PROLACTIN</span><span class="test-price">₹500</span><button class="book-btn" data-test="PROLACTIN" data-price="500">Book</button></div>
+          </div>
+          <div class="hidden-tests" style="display:none">
+            <div class="test-row"><span class="test-name">LH</span><span class="test-price">₹500</span><button class="book-btn" data-test="LH" data-price="500">Book</button></div>
+            <div class="test-row"><span class="test-name">FSH</span><span class="test-price">₹500</span><button class="book-btn" data-test="FSH" data-price="500">Book</button></div>
+            <div class="test-row"><span class="test-name">PSA</span><span class="test-price">₹800</span><button class="book-btn" data-test="PSA" data-price="800">Book</button></div>
+            <div class="test-row"><span class="test-name">Free PSA</span><span class="test-price">₹1200</span><button class="book-btn" data-test="Free PSA" data-price="1200">Book</button></div>
+            <div class="test-row"><span class="test-name">ANA (Anti Nuclear Antibody)</span><span class="test-price">₹1000</span><button class="book-btn" data-test="ANA (Anti Nuclear Antibody)" data-price="1000">Book</button></div>
+            <div class="test-row"><span class="test-name">Total Testosterone</span><span class="test-price">₹800</span><button class="book-btn" data-test="Total Testosterone" data-price="800">Book</button></div>
+            <div class="test-row"><span class="test-name">FREE Testosterone</span><span class="test-price">₹1400</span><button class="book-btn" data-test="FREE Testosterone" data-price="1400">Book</button></div>
+            <div class="test-row"><span class="test-name">Total IgE</span><span class="test-price">₹800</span><button class="book-btn" data-test="Total IgE" data-price="800">Book</button></div>
+            <div class="test-row"><span class="test-name">PTH (Parathyroid Hormones)</span><span class="test-price">₹1200</span><button class="book-btn" data-test="PTH (Parathyroid Hormones)" data-price="1200">Book</button></div>
+            <div class="test-row"><span class="test-name">HbA1C (Glycosylated Hemoglobin)</span><span class="test-price">₹600</span><button class="book-btn" data-test="HbA1C (Glycosylated Hemoglobin)" data-price="600">Book</button></div>
+            <div class="test-row"><span class="test-name">Vit. B12</span><span class="test-price">₹1000</span><button class="book-btn" data-test="Vit. B12" data-price="1000">Book</button></div>
+            <div class="test-row"><span class="test-name">Vit. D3</span><span class="test-price">₹1200</span><button class="book-btn" data-test="Vit. D3" data-price="1200">Book</button></div>
+            <div class="test-row"><span class="test-name">E2 (Estradiol)</span><span class="test-price">₹700</span><button class="book-btn" data-test="E2 (Estradiol)" data-price="700">Book</button></div>
+            <div class="test-row"><span class="test-name">Progesterone</span><span class="test-price">₹700</span><button class="book-btn" data-test="Progesterone" data-price="700">Book</button></div>
+            <div class="test-row"><span class="test-name">Iron Profile (S. Iron, TIBC, Ferritin)</span><span class="test-price">₹1400</span><button class="book-btn" data-test="Iron Profile (S. Iron, TIBC, Ferritin)" data-price="1400">Book</button></div>
+          </div>
+          <button class="view-all-btn">View All 20 Tests <i class="fas fa-chevron-down"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. HEALTH PACKAGES -->
+  <section id="packages" class="packages section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-subtitle">Wellness Plans</span>
+        <h2>Health Packages</h2>
+      </div>
+      <div class="packages-grid">
+        <div class="package-card">
+          <i class="fas fa-heartbeat"></i>
+          <h3>Full Body Checkup</h3>
+          <div class="package-tests">CBC, LFT, KFT, Lipid Profile, Thyroid, Blood Sugar, Urine</div>
+          <div class="package-price">₹2500</div>
+          <button class="btn btn-primary w-100 book-btn" data-test="Full Body Checkup Package" data-price="2500">Book Package</button>
+        </div>
+        <div class="package-card">
+          <i class="fas fa-thermometer-half"></i>
+          <h3>Fever Package</h3>
+          <div class="package-tests">CBC, Malaria, Widal, Dengue, CRP</div>
+          <div class="package-price">₹900</div>
+          <button class="btn btn-primary w-100 book-btn" data-test="Fever Package" data-price="900">Book Package</button>
+        </div>
+        <div class="package-card">
+          <i class="fas fa-cubes"></i>
+          <h3>Diabetes Package</h3>
+          <div class="package-tests">Blood Sugar F/PP/R, HbA1C, KFT, Lipid Profile, Urine</div>
+          <div class="package-price">₹1500</div>
+          <button class="btn btn-primary w-100 book-btn" data-test="Diabetes Package" data-price="1500">Book Package</button>
+        </div>
+        <div class="package-card">
+          <i class="fas fa-female"></i>
+          <h3>Women Wellness</h3>
+          <div class="package-tests">CBC, Thyroid, Vit D3, Vit B12, Iron Profile, Prolactin</div>
+          <div class="package-price">₹2800</div>
+          <button class="btn btn-primary w-100 book-btn" data-test="Women Wellness Package" data-price="2800">Book Package</button>
+        </div>
+        <div class="package-card">
+          <i class="fas fa-heart"></i>
+          <h3>Heart Checkup</h3>
+          <div class="package-tests">ECG, Lipid Profile, CPK-MB, Trop-T, LDH</div>
+          <div class="package-price">₹2200</div>
+          <button class="btn btn-primary w-100 book-btn" data-test="Heart Checkup Package" data-price="2200">Book Package</button>
+        </div>
+        <div class="package-card">
+          <i class="fas fa-pills"></i>
+          <h3>Vitamin Package</h3>
+          <div class="package-tests">Vit D3, Vit B12, Iron Profile, Calcium</div>
+          <div class="package-price">₹1800</div>
+          <button class="btn btn-primary w-100 book-btn" data-test="Vitamin Package" data-price="1800">Book Package</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. DOCTORS -->
+  <section id="doctors" class="doctors section bg-light">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-subtitle">Our Experts</span>
+        <h2>Meet Our Experts</h2>
+      </div>
+      <div class="doctors-grid">
+        <div class="doctor-card">
+          <div class="avatar red-bg">AS</div>
+          <h3>Dr. Sushil Kumar Roosia</h3>
+          <p class="qualification">MD Pathology, MBBS</p>
+          <span class="experience-badge">12+ Years Experience</span>
+          <p class="doctor-desc">Specialized in hematology and clinical pathology with over a decade of experience in diagnostic medicine.</p>
+        </div>
+        <div class="doctor-card">
+          <div class="avatar navy-bg">RK</div>
+          <h3> Dhirendra Kumar Gupta</h3>
+          <p class="qualification">MBBS, DCP</p>
+          <span class="experience-badge">10+ Years Experience</span>
+          <p class="doctor-desc">Expert in biochemistry and immunology, committed to accurate and timely diagnostic results.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. APPOINTMENT BOOKING -->
+  <section id="appointment" class="appointment section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-subtitle">Schedule a Test</span>
+        <h2>Book Your Appointment</h2>
+      </div>
+      <div class="form-container">
+        <form id="appointment-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="pt-name" name="name" required placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" id="pt-phone" name="phone" required placeholder="Enter your mobile number">
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="pt-email" name="email" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+              <label>Address</label>
+              <input type="text" id="pt-address" name="address" required placeholder="Enter your full address">
+            </div>
+            <div class="form-group">
+              <label>Test Category</label>
+              <select name="category" required>
+                <option value="">Select a category</option>
+                <option value="hematology">Hematology</option>
+                <option value="urine">Urine Analysis</option>
+                <option value="stool">Stool Examination</option>
+                <option value="semen">Semen Analysis</option>
+                <option value="biochemistry">Biochemistry</option>
+                <option value="immunology">Immunological</option>
+                <option value="microbiology">Microbiology</option>
+                <option value="fluids">Fluids Examination</option>
+                <option value="special">Special Tests</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Preferred Date</label>
+              <input type="date" name="date" required>
+            </div>
+            <div class="form-group">
+              <label>Preferred Time</label>
+              <select name="time" required>
+                <option value="">Select time slot</option>
+                <option value="07:00 AM">07:00 AM</option>
+                <option value="07:30 AM">07:30 AM</option>
+                <option value="08:00 AM">08:00 AM</option>
+                <option value="08:30 AM">08:30 AM</option>
+                <option value="09:00 AM">09:00 AM</option>
+                <option value="09:30 AM">09:30 AM</option>
+                <option value="10:00 AM">10:00 AM</option>
+                <option value="10:30 AM">10:30 AM</option>
+                <option value="11:00 AM">11:00 AM</option>
+                <option value="11:30 AM">11:30 AM</option>
+                <option value="12:00 PM">12:00 PM</option>
+                <option value="12:30 PM">12:30 PM</option>
+                <option value="01:00 PM">01:00 PM</option>
+                <option value="01:30 PM">01:30 PM</option>
+                <option value="02:00 PM">02:00 PM</option>
+                <option value="02:30 PM">02:30 PM</option>
+                <option value="03:00 PM">03:00 PM</option>
+                <option value="03:30 PM">03:30 PM</option>
+                <option value="04:00 PM">04:00 PM</option>
+                <option value="04:30 PM">04:30 PM</option>
+                <option value="05:00 PM">05:00 PM</option>
+                <option value="05:30 PM">05:30 PM</option>
+                <option value="06:00 PM">06:00 PM</option>
+                <option value="06:30 PM">06:30 PM</option>
+                <option value="07:00 PM">07:00 PM</option>
+                <option value="07:30 PM">07:30 PM</option>
+                <option value="08:00 PM">08:00 PM</option>
+                <option value="08:30 PM">08:30 PM</option>
+                <option value="09:00 PM">09:00 PM</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label>Collection Type</label>
+              <div class="radio-group">
+                <label><input type="radio" name="collection" value="home" checked> Home Collection</label>
+                <label><input type="radio" name="collection" value="walkin"> Walk-In</label>
+              </div>
+            </div>
+            <!-- BOOKING TYPE SELECTION -->
+            <div class="form-group full-width">
+              <label>Who is this booking for? <span style="color:#C8102E">*</span></label>
+              <div class="booking-type-box">
+                <label class="booking-option" id="label-self">
+                  <input type="radio" name="bookingFor" id="booking-self" value="self">
+                  <span><i class="fas fa-user"></i> Booking For Myself</span>
+                </label>
+                <label class="booking-option" id="label-other">
+                  <input type="radio" name="bookingFor" id="booking-other" value="other">
+                  <span><i class="fas fa-user-friends"></i> Booking For Someone Else</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- MODE A: LIVE GPS (Booking For Myself) -->
+            <div id="self-location-section" class="form-group full-width" style="display:none;">
+              <label>Share Your Live Location <span style="color:#C8102E">*</span></label>
+              <p style="font-size:13px;color:#666;margin:0 0 10px;">We need your GPS location to confirm you are within our 5 km service area.</p>
+              <button type="button" id="get-live-location" class="btn btn-outline">
+                <i class="fas fa-location-crosshairs"></i> Share Current Location
+              </button>
+              <div id="live-location-status" style="margin-top:10px;"></div>
+            </div>
+
+            <!-- MODE B: MAP PICKER (Booking For Someone Else) -->
+            <div id="other-location-section" class="form-group full-width" style="display:none;">
+              <label>Pin Patient Location on Map <span style="color:#C8102E">*</span></label>
+              <p style="font-size:13px;color:#666;margin:0 0 10px;">Tap anywhere on the map to pin the patient's exact location.</p>
+              <div id="booking-map" style="height:320px;border-radius:10px;border:2px solid #e2e8f0;"></div>
+              <div id="map-location-status" style="margin-top:10px;"></div>
+            </div>
+
+            <!-- HIDDEN COORDS — single source of truth -->
+            <input type="hidden" id="latitude"  name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+
+            <!-- NOTES -->
+            <div class="form-group full-width">
+              <label>Additional Notes</label>
+              <textarea id="pt-notes" name="notes" rows="3" placeholder="Any specific requirements or tests from the cart?"></textarea>
+            </div>
+            <div class="form-group full-width">
+              <label>Payment Method</label>
+              <div class="radio-group">
+                <label><input type="radio" name="payment" value="cod" checked> Cash on Delivery</label>
+                <label><input type="radio" name="payment" value="upi"> UPI</label>
+              </div>
+            </div>
+          </div>
+          
+          <div id="upi-section" style="display:none" class="upi-section">
+            <div class="qr-box">QR Code</div>
+            <p>Scan to Pay</p>
+            <p class="upi-id">roosiapathology@upi</p>
+          </div>
+          
+          <button type="submit" class="btn btn-primary w-100 form-submit-btn">Book Appointment</button>
+        </form>
+      </div>
+    </div>
+  </section>
+  <!-- PHOTO GALLERY -->
+<section id="gallery" class="gallery section bg-light">
+  <div class="container">
+
+    <div class="section-header text-center">
+      <span class="section-subtitle">Our Lab</span>
+      <h2>Photo Gallery</h2>
+      <p>Take a look inside Roosia Pathology</p>
+    </div>
+
+    <div class="gallery-grid">
+
+      <div class="gallery-item">
+        <img src="photo1.jpg" alt="Lab Photo">
+      </div>
+
+      <div class="gallery-item">
+        <img src="photo2.jpg" alt="Lab Photo">
+      </div>
+
+      <div class="gallery-item">
+        <img src="photo3.jpg" alt="Lab Photo">
+      </div>
+
+      <div class="gallery-item">
+        <img src="photo4.jpg" alt="Lab Photo">
+      </div>
+
+      <div class="gallery-item">
+        <img src="photo5.jpg" alt="Lab Photo">
+      </div>
+
+    </div>
+
+  </div>
+</section>
+<!-- EMERGENCY CONTACT SECTION -->
+<section class="emergency-contact">
+    <div class="container">
+
+        <div class="emergency-box">
+
+            <h2>Need Immediate Assistance?</h2>
+
+            <p>
+                Our lab team is available to help you with urgent bookings,
+                report issues, home collection support, and patient assistance.
+            </p>
+
+            <div class="emergency-details">
+
+                <div class="emergency-item">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>+91 8467812558</span>
+                </div>
+
+                <div class="emergency-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Response Time: Within 10–15 Minutes</span>
+                </div>
+
+            </div>
+
+            <div class="emergency-buttons">
+
+                <a href="tel:+918467812558" class="btn btn-primary">
+                    Talk To Lab
+                </a>
+
+                <a href="https://wa.me/918467812558"
+                   class="btn btn-outline">
+                    WhatsApp Us
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+<!-- HOW IT WORKS SECTION -->
+<section class="how-it-works">
+
+    <div class="container">
+
+        <div class="section-header">
+            <h2>How Home Collection Works</h2>
+
+            <p>
+                Simple, fast, and reliable diagnostic testing from the comfort of your home.
+            </p>
+        </div>
+
+        <div class="steps-grid">
+
+            <!-- STEP 1 -->
+            <div class="step-card">
+
+                <div class="step-number">1</div>
+
+                <i class="fas fa-notes-medical"></i>
+
+                <h3>Book Your Test</h3>
+
+                <p>
+                    Select your required tests and submit your booking request online.
+                </p>
+
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="step-card">
+
+                <div class="step-number">2</div>
+
+                <i class="fas fa-phone-volume"></i>
+
+                <h3>Lab Confirmation</h3>
+
+                <p>
+                    Our lab team verifies your request and confirms your appointment quickly.
+                </p>
+
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="step-card">
+
+                <div class="step-number">3</div>
+
+                <i class="fas fa-house-user"></i>
+
+                <h3>Sample Collection</h3>
+
+                <p>
+                    Our trained staff visits your home safely for sample collection.
+                </p>
+
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="step-card">
+
+                <div class="step-number">4</div>
+
+                <i class="fas fa-file-medical-alt"></i>
+
+                <h3>Digital Reports</h3>
+
+                <p>
+                    Receive your reports securely via WhatsApp, PDF, or email.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+  <!-- 10. CONTACT -->
+  <section id="contact" class="contact section">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-info">
+          <h2>Get In Touch</h2>
+          <p>Have questions? Need to book a test? Reach out to us.</p>
+          
+          <div class="contact-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <div>
+              <h4>Address</h4>
+              <p>45, Taksal, Kotwali Ke Samne wali Dhal, Jhansi, uttar pradesh (284002) </p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-phone"></i>
+            <div>
+              <h4>Phone</h4>
+              <p>+918467812558</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <div>
+              <h4>Email</h4>
+              <p>roosiapathology@gmail.com</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-clock"></i>
+            <div>
+              <h4>Hours</h4>
+              <p>10:30 AM – 8:30 PM (Mon-Sun)</p>
+            </div>
+          </div>
+        </div>
+        <div class="contact-map">
+
+  <div id="shop-map" style="height: 400px;"></div>
+
+</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#home" class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2V22M2 12H22" stroke="#C8102E" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+            <span class="logo-text"><span>Roosia</span> <span class="text-red">Pathology</span></span>
+          </a>
+          <p class="tagline">Accurate. Affordable. Trusted.</p>
+          <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-whatsapp"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+          </div>
+        </div>
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#tests">Test Prices</a></li>
+            <li><a href="#packages">Health Packages</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Services</h4>
+          <ul>
+            <li>Hematology</li>
+            <li>Biochemistry</li>
+            <li>Immunology</li>
+            <li>Microbiology</li>
+            <li>Home Collection</li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4>Contact Info</h4>
+          <p>Jhansi, Uttar Pradesh</p>
+          <p>+91 XXXXX XXXXX</p>
+          <p>info@roosiapathology.com</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Roosia Pathology. All rights reserved. | Jhansi, Uttar Pradesh</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 12. FLOATING WHATSAPP BUTTON -->
+ <a href="https://wa.me/918467812558?text=Hello%20Roosia%20Pathology,%20I%20want%20to%20book%20a%20test"
+   class="whatsapp-btn"
+   target="_blank">
+
+   <i class="fab fa-whatsapp"></i>
+
+</a>
+<!-- FLOATING CALL BUTTON -->
+<a href="tel:+918467812558" class="call-btn">
+   <i class="fas fa-phone-alt"></i>
+</a>
+ <!-- CART SIDEBAR -->
+
+<div id="cart-overlay" class="cart-overlay"></div>
+
+<div id="cart-sidebar" class="cart-sidebar">
+
+  <div class="cart-header">
+
+    <h3>Your Test Cart</h3>
+
+    <button id="close-cart">
+      &times;
+    </button>
+
+  </div>
+
+  <div id="cart-items" class="cart-items">
+
+    <div class="empty-cart-msg">
+      Your cart is empty
+    </div>
+
+  </div>
+
+  <div class="cart-footer">
+
+    <div id="cart-total" class="cart-total">
+
+      <strong>Total: ₹0</strong>
+
+    </div>
+
+    <div class="cart-actions">
+
+      <button
+        id="clear-cart"
+        class="btn btn-outline w-100"
+      >
+        Clear Cart
+      </button>
+
+      <button
+        id="proceed-book"
+        class="btn btn-primary w-100"
+      >
+        Proceed Booking
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    (function () { emailjs.init("b2DM-kTOOC1BD4POc"); })();
+  </script>
+
+  <!-- Firebase Compat SDK (v9 compat = works as plain <script>, no bundler needed) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase integration (must be after Firebase SDK) -->
+  <script src="firebase.js"></script>
+
+  <!-- Main JS (must be last) -->
+  <script src="script.js"></script>
+</body>
+</html>
