@@ -463,90 +463,234 @@
       <div class="section-header text-center">
         <span class="section-subtitle">Schedule a Test</span>
         <h2>Book Your Appointment</h2>
+        <p style="color:#6c757d;max-width:500px;margin:10px auto 0;font-size:15px;">Quick, easy, and secure. Book in under 2 minutes.</p>
       </div>
+
       <div class="form-container">
-        <form id="appointment-form">
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Full Name</label>
-              <input type="text" id="pt-name" name="name" required placeholder="Enter your name">
-            </div>
-            <div class="form-group">
-              <label>Phone Number</label>
-              <input type="tel" id="pt-phone" name="phone" required placeholder="Enter your mobile number">
-            </div>
-            <div class="form-group">
-              <label>Email Address</label>
-              <input type="email" id="pt-email" name="email" placeholder="Enter your email">
-            </div>
-            <div class="form-group">
-              <label>Address</label>
-              <input type="text" id="pt-address" name="address" required placeholder="Enter your full address">
-            </div>
-            <div class="form-group">
-              <label>Test Category</label>
-              <select name="category" required>
-                <option value="">Select a category</option>
-                <option value="hematology">Hematology</option>
-                <option value="urine">Urine Analysis</option>
-                <option value="stool">Stool Examination</option>
-                <option value="semen">Semen Analysis</option>
-                <option value="biochemistry">Biochemistry</option>
-                <option value="immunology">Immunological</option>
-                <option value="microbiology">Microbiology</option>
-                <option value="fluids">Fluids Examination</option>
-                <option value="special">Special Tests</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Preferred Date</label>
-              <input type="date" name="date" required>
-            </div>
-            <div class="form-group">
-              <label>Preferred Time</label>
-              <select name="time" required>
-                <option value="">Select time slot</option>
-                <option value="07:00 AM">07:00 AM</option>
-                <option value="07:30 AM">07:30 AM</option>
-                <option value="08:00 AM">08:00 AM</option>
-                <option value="08:30 AM">08:30 AM</option>
-                <option value="09:00 AM">09:00 AM</option>
-                <option value="09:30 AM">09:30 AM</option>
-                <option value="10:00 AM">10:00 AM</option>
-                <option value="10:30 AM">10:30 AM</option>
-                <option value="11:00 AM">11:00 AM</option>
-                <option value="11:30 AM">11:30 AM</option>
-                <option value="12:00 PM">12:00 PM</option>
-                <option value="12:30 PM">12:30 PM</option>
-                <option value="01:00 PM">01:00 PM</option>
-                <option value="01:30 PM">01:30 PM</option>
-                <option value="02:00 PM">02:00 PM</option>
-                <option value="02:30 PM">02:30 PM</option>
-                <option value="03:00 PM">03:00 PM</option>
-                <option value="03:30 PM">03:30 PM</option>
-                <option value="04:00 PM">04:00 PM</option>
-                <option value="04:30 PM">04:30 PM</option>
-                <option value="05:00 PM">05:00 PM</option>
-                <option value="05:30 PM">05:30 PM</option>
-                <option value="06:00 PM">06:00 PM</option>
-                <option value="06:30 PM">06:30 PM</option>
-                <option value="07:00 PM">07:00 PM</option>
-                <option value="07:30 PM">07:30 PM</option>
-                <option value="08:00 PM">08:00 PM</option>
-                <option value="08:30 PM">08:30 PM</option>
-                <option value="09:00 PM">09:00 PM</option>
-              </select>
-            </div>
-            <div class="form-group full-width">
-              <label>Collection Type</label>
-              <div class="radio-group">
-                <label><input type="radio" name="collection" value="home" checked> Home Collection</label>
-                <label><input type="radio" name="collection" value="walkin"> Walk-In</label>
+
+        <!-- PROGRESS BAR -->
+        <div class="booking-progress">
+          <div class="bp-step active" id="bp-1">
+            <div class="bp-circle"><i class="fas fa-user"></i></div>
+            <span>Patient Info</span>
+          </div>
+          <div class="bp-line" id="bp-line-1"></div>
+          <div class="bp-step" id="bp-2">
+            <div class="bp-circle"><i class="fas fa-calendar-alt"></i></div>
+            <span>Schedule</span>
+          </div>
+          <div class="bp-line" id="bp-line-2"></div>
+          <div class="bp-step" id="bp-3">
+            <div class="bp-circle"><i class="fas fa-map-marker-alt"></i></div>
+            <span>Location</span>
+          </div>
+          <div class="bp-line" id="bp-line-3"></div>
+          <div class="bp-step" id="bp-4">
+            <div class="bp-circle"><i class="fas fa-check"></i></div>
+            <span>Confirm</span>
+          </div>
+        </div>
+
+        <form id="appointment-form" novalidate autocomplete="on">
+
+          <!-- ══════════════════════════════════════ -->
+          <!-- STEP 1 — PATIENT INFO                 -->
+          <!-- ══════════════════════════════════════ -->
+          <div class="bk-step" id="bk-step-1">
+            <div class="bk-step-header">
+              <div class="bk-step-icon"><i class="fas fa-user-circle"></i></div>
+              <div>
+                <h3>Patient Information</h3>
+                <p>Please enter correct details. We use these to confirm your booking.</p>
               </div>
             </div>
-            <!-- BOOKING TYPE SELECTION -->
-            <div class="form-group full-width">
-              <label>Who is this booking for? <span style="color:#C8102E">*</span></label>
+
+            <div class="form-grid">
+
+              <div class="form-group">
+                <label>Full Name <span class="req-star">*</span></label>
+                <div class="input-wrap">
+                  <i class="fas fa-user input-ico"></i>
+                  <input type="text" id="pt-name" name="name" placeholder="e.g. Ramesh Kumar" autocomplete="name" inputmode="text">
+                </div>
+                <div class="field-err" id="err-name"></div>
+              </div>
+
+              <div class="form-group">
+                <label>Phone Number <span class="req-star">*</span></label>
+                <div class="input-wrap phone-wrap">
+                  <span class="phone-prefix"><i class="fas fa-phone"></i> +91</span>
+                  <input type="tel" id="pt-phone" name="phone" placeholder="10-digit mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" pattern="[0-9]{10}">
+                </div>
+                <div class="field-err" id="err-phone"></div>
+              </div>
+
+              <div class="form-group">
+                <label>Email Address <span class="opt-label">optional</span></label>
+                <div class="input-wrap">
+                  <i class="fas fa-envelope input-ico"></i>
+                  <input type="email" id="pt-email" name="email" placeholder="name@gmail.com" autocomplete="email" inputmode="email">
+                </div>
+                <div class="field-err" id="err-email"></div>
+              </div>
+
+              <div class="form-group">
+                <label>Full Address <span class="req-star">*</span></label>
+                <div class="input-wrap">
+                  <i class="fas fa-home input-ico"></i>
+                  <input type="text" id="pt-address" name="address" placeholder="House no., Street, Area, Jhansi" autocomplete="street-address">
+                </div>
+                <div class="field-err" id="err-address"></div>
+              </div>
+
+            </div>
+
+            <div class="bk-nav">
+              <div></div>
+              <button type="button" class="btn btn-primary bk-next" data-next="2">
+                Next &nbsp;<i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- ══════════════════════════════════════ -->
+          <!-- STEP 2 — SCHEDULE                     -->
+          <!-- ══════════════════════════════════════ -->
+          <div class="bk-step" id="bk-step-2" style="display:none;">
+            <div class="bk-step-header">
+              <div class="bk-step-icon"><i class="fas fa-calendar-alt"></i></div>
+              <div>
+                <h3>Schedule Your Visit</h3>
+                <p>Choose your preferred date, time, and test category.</p>
+              </div>
+            </div>
+
+            <div class="form-grid">
+
+              <div class="form-group">
+                <label>Test Category <span class="req-star">*</span></label>
+                <div class="input-wrap">
+                  <i class="fas fa-flask input-ico"></i>
+                  <select id="pt-category" name="category">
+                    <option value="">Select a category</option>
+                    <option value="hematology">Hematology</option>
+                    <option value="urine">Urine Analysis</option>
+                    <option value="stool">Stool Examination</option>
+                    <option value="semen">Semen Analysis</option>
+                    <option value="biochemistry">Biochemistry</option>
+                    <option value="immunology">Immunological</option>
+                    <option value="microbiology">Microbiology</option>
+                    <option value="fluids">Fluids Examination</option>
+                    <option value="special">Special Tests</option>
+                  </select>
+                </div>
+                <div class="field-err" id="err-category"></div>
+              </div>
+
+              <div class="form-group">
+                <label>Preferred Date <span class="req-star">*</span></label>
+                <div class="input-wrap">
+                  <i class="fas fa-calendar input-ico"></i>
+                  <input type="date" id="pt-date" name="date">
+                </div>
+                <div class="field-err" id="err-date"></div>
+              </div>
+
+              <div class="form-group full-width">
+                <label>Preferred Time <span class="req-star">*</span></label>
+                <div class="time-grid" id="time-grid">
+                  <button type="button" class="time-chip" data-time="07:00 AM">07:00 AM</button>
+                  <button type="button" class="time-chip" data-time="07:30 AM">07:30 AM</button>
+                  <button type="button" class="time-chip" data-time="08:00 AM">08:00 AM</button>
+                  <button type="button" class="time-chip" data-time="08:30 AM">08:30 AM</button>
+                  <button type="button" class="time-chip" data-time="09:00 AM">09:00 AM</button>
+                  <button type="button" class="time-chip" data-time="09:30 AM">09:30 AM</button>
+                  <button type="button" class="time-chip" data-time="10:00 AM">10:00 AM</button>
+                  <button type="button" class="time-chip" data-time="10:30 AM">10:30 AM</button>
+                  <button type="button" class="time-chip" data-time="11:00 AM">11:00 AM</button>
+                  <button type="button" class="time-chip" data-time="11:30 AM">11:30 AM</button>
+                  <button type="button" class="time-chip" data-time="12:00 PM">12:00 PM</button>
+                  <button type="button" class="time-chip" data-time="12:30 PM">12:30 PM</button>
+                  <button type="button" class="time-chip" data-time="01:00 PM">01:00 PM</button>
+                  <button type="button" class="time-chip" data-time="01:30 PM">01:30 PM</button>
+                  <button type="button" class="time-chip" data-time="02:00 PM">02:00 PM</button>
+                  <button type="button" class="time-chip" data-time="02:30 PM">02:30 PM</button>
+                  <button type="button" class="time-chip" data-time="03:00 PM">03:00 PM</button>
+                  <button type="button" class="time-chip" data-time="03:30 PM">03:30 PM</button>
+                  <button type="button" class="time-chip" data-time="04:00 PM">04:00 PM</button>
+                  <button type="button" class="time-chip" data-time="04:30 PM">04:30 PM</button>
+                  <button type="button" class="time-chip" data-time="05:00 PM">05:00 PM</button>
+                  <button type="button" class="time-chip" data-time="05:30 PM">05:30 PM</button>
+                  <button type="button" class="time-chip" data-time="06:00 PM">06:00 PM</button>
+                  <button type="button" class="time-chip" data-time="06:30 PM">06:30 PM</button>
+                  <button type="button" class="time-chip" data-time="07:00 PM">07:00 PM</button>
+                  <button type="button" class="time-chip" data-time="07:30 PM">07:30 PM</button>
+                  <button type="button" class="time-chip" data-time="08:00 PM">08:00 PM</button>
+                  <button type="button" class="time-chip" data-time="08:30 PM">08:30 PM</button>
+                  <button type="button" class="time-chip" data-time="09:00 PM">09:00 PM</button>
+                </div>
+                <input type="hidden" id="pt-time" name="time">
+                <div class="field-err" id="err-time"></div>
+              </div>
+
+              <!-- Collection Type -->
+              <div class="form-group full-width">
+                <label>Collection Type</label>
+                <div class="collection-cards">
+                  <label class="collection-card">
+                    <input type="radio" name="collection" value="home" checked>
+                    <div class="cc-inner">
+                      <i class="fas fa-home"></i>
+                      <strong>Home Collection</strong>
+                      <span>We come to you · +₹50</span>
+                    </div>
+                  </label>
+                  <label class="collection-card">
+                    <input type="radio" name="collection" value="walkin">
+                    <div class="cc-inner">
+                      <i class="fas fa-hospital-alt"></i>
+                      <strong>Walk-In</strong>
+                      <span>Visit our lab directly</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div class="form-group full-width">
+                <label>Additional Notes <span class="opt-label">optional</span></label>
+                <div class="input-wrap">
+                  <textarea id="pt-notes" name="notes" rows="3" placeholder="Any specific tests, medical conditions, or special instructions…"></textarea>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="bk-nav">
+              <button type="button" class="btn btn-outline bk-back" data-back="1">
+                <i class="fas fa-arrow-left"></i> &nbsp;Back
+              </button>
+              <button type="button" class="btn btn-primary bk-next" data-next="3">
+                Next &nbsp;<i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- ══════════════════════════════════════ -->
+          <!-- STEP 3 — LOCATION                     -->
+          <!-- ══════════════════════════════════════ -->
+          <div class="bk-step" id="bk-step-3" style="display:none;">
+            <div class="bk-step-header">
+              <div class="bk-step-icon"><i class="fas fa-map-marker-alt"></i></div>
+              <div>
+                <h3>Location Verification</h3>
+                <p>We serve within a <strong>5 km radius</strong> of our lab in Jhansi.</p>
+              </div>
+            </div>
+
+            <!-- WHO IS THIS FOR -->
+            <div class="form-group full-width" style="margin-bottom:20px;">
+              <label style="margin-bottom:12px;display:block;font-weight:600;">Who is this booking for? <span class="req-star">*</span></label>
               <div class="booking-type-box">
                 <label class="booking-option" id="label-self">
                   <input type="radio" name="bookingFor" id="booking-self" value="self">
@@ -557,51 +701,107 @@
                   <span><i class="fas fa-user-friends"></i> Booking For Someone Else</span>
                 </label>
               </div>
+              <div class="field-err" id="err-booking-for"></div>
             </div>
 
-            <!-- MODE A: LIVE GPS (Booking For Myself) -->
+            <!-- MODE A: GPS — MYSELF -->
             <div id="self-location-section" class="form-group full-width" style="display:none;">
-              <label>Share Your Live Location <span style="color:#C8102E">*</span></label>
-              <p style="font-size:13px;color:#666;margin:0 0 10px;">We need your GPS location to confirm you are within our 5 km service area.</p>
-              <button type="button" id="get-live-location" class="btn btn-outline">
-                <i class="fas fa-location-crosshairs"></i> Share Current Location
+              <div class="loc-info-box">
+                <i class="fas fa-shield-alt"></i>
+                <div>
+                  <strong>Why we need your location</strong>
+                  <p>We use your GPS to confirm you are within our 5 km service area. Your location is only used for this booking and never stored elsewhere.</p>
+                </div>
+              </div>
+              <button type="button" id="get-live-location" class="loc-btn">
+                <i class="fas fa-location-crosshairs" id="loc-icon"></i>
+                <span id="loc-btn-text">Share Current Location</span>
               </button>
-              <div id="live-location-status" style="margin-top:10px;"></div>
+              <div id="live-location-status" style="margin-top:12px;"></div>
             </div>
 
-            <!-- MODE B: MAP PICKER (Booking For Someone Else) -->
+            <!-- MODE B: MAP — SOMEONE ELSE -->
             <div id="other-location-section" class="form-group full-width" style="display:none;">
-              <label>Pin Patient Location on Map <span style="color:#C8102E">*</span></label>
-              <p style="font-size:13px;color:#666;margin:0 0 10px;">Tap anywhere on the map to pin the patient's exact location.</p>
-              <div id="booking-map" style="height:320px;border-radius:10px;border:2px solid #e2e8f0;"></div>
-              <div id="map-location-status" style="margin-top:10px;"></div>
+              <div class="loc-info-box">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                  <strong>Pin the patient's location</strong>
+                  <p>Tap anywhere on the map to drop a pin. Drag the pin to adjust the exact location. The red circle shows our 5 km service area.</p>
+                </div>
+              </div>
+              <div id="booking-map"></div>
+              <div id="map-location-status" style="margin-top:12px;"></div>
             </div>
 
-            <!-- HIDDEN COORDS — single source of truth -->
+            <!-- HIDDEN COORDS -->
             <input type="hidden" id="latitude"  name="latitude">
             <input type="hidden" id="longitude" name="longitude">
 
-            <!-- NOTES -->
-            <div class="form-group full-width">
-              <label>Additional Notes</label>
-              <textarea id="pt-notes" name="notes" rows="3" placeholder="Any specific requirements or tests from the cart?"></textarea>
+            <div class="bk-nav">
+              <button type="button" class="btn btn-outline bk-back" data-back="2">
+                <i class="fas fa-arrow-left"></i> &nbsp;Back
+              </button>
+              <button type="button" class="btn btn-primary bk-next" data-next="4">
+                Next &nbsp;<i class="fas fa-arrow-right"></i>
+              </button>
             </div>
-            <div class="form-group full-width">
-              <label>Payment Method</label>
-              <div class="radio-group">
-                <label><input type="radio" name="payment" value="cod" checked> Cash on Delivery</label>
-                <label><input type="radio" name="payment" value="upi"> UPI</label>
+          </div>
+
+          <!-- ══════════════════════════════════════ -->
+          <!-- STEP 4 — CONFIRM                      -->
+          <!-- ══════════════════════════════════════ -->
+          <div class="bk-step" id="bk-step-4" style="display:none;">
+            <div class="bk-step-header">
+              <div class="bk-step-icon"><i class="fas fa-clipboard-check"></i></div>
+              <div>
+                <h3>Review &amp; Confirm</h3>
+                <p>Check your details before submitting.</p>
               </div>
             </div>
+
+            <!-- Summary -->
+            <div class="bk-summary" id="bk-summary"></div>
+
+            <!-- Payment -->
+            <div class="form-group full-width" style="margin-top:24px;">
+              <label style="margin-bottom:12px;display:block;font-weight:600;">Payment Method</label>
+              <div class="payment-cards">
+                <label class="payment-card">
+                  <input type="radio" name="payment" value="cod" checked>
+                  <div class="pc-inner">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <strong>Cash on Delivery</strong>
+                    <span>Pay when we arrive</span>
+                  </div>
+                </label>
+                <label class="payment-card">
+                  <input type="radio" name="payment" value="upi">
+                  <div class="pc-inner">
+                    <i class="fas fa-qrcode"></i>
+                    <strong>UPI Payment</strong>
+                    <span>Pay via QR / UPI ID</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- UPI Box -->
+            <div id="upi-section" style="display:none;" class="upi-section">
+              <div class="qr-box">QR Code</div>
+              <p>Scan to Pay</p>
+              <p class="upi-id">roosiapathology@upi</p>
+            </div>
+
+            <div class="bk-nav">
+              <button type="button" class="btn btn-outline bk-back" data-back="3">
+                <i class="fas fa-arrow-left"></i> &nbsp;Back
+              </button>
+              <button type="submit" class="btn btn-primary bk-submit" id="submit-btn">
+                <i class="fas fa-check-circle"></i> &nbsp;Confirm Booking
+              </button>
+            </div>
           </div>
-          
-          <div id="upi-section" style="display:none" class="upi-section">
-            <div class="qr-box">QR Code</div>
-            <p>Scan to Pay</p>
-            <p class="upi-id">roosiapathology@upi</p>
-          </div>
-          
-          <button type="submit" class="btn btn-primary w-100 form-submit-btn">Book Appointment</button>
+
         </form>
       </div>
     </div>
@@ -641,6 +841,130 @@
     </div>
 
   </div>
+</section>
+<!-- EMERGENCY CONTACT SECTION -->
+<section class="emergency-contact">
+    <div class="container">
+
+        <div class="emergency-box">
+
+            <h2>Need Immediate Assistance?</h2>
+
+            <p>
+                Our lab team is available to help you with urgent bookings,
+                report issues, home collection support, and patient assistance.
+            </p>
+
+            <div class="emergency-details">
+
+                <div class="emergency-item">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>+91 8467812558</span>
+                </div>
+
+                <div class="emergency-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Response Time: Within 10–15 Minutes</span>
+                </div>
+
+            </div>
+
+            <div class="emergency-buttons">
+
+                <a href="tel:+918467812558" class="btn btn-primary">
+                    Talk To Lab
+                </a>
+
+                <a href="https://wa.me/918467812558"
+                   class="btn btn-outline">
+                    WhatsApp Us
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+<!-- HOW IT WORKS SECTION -->
+<section class="how-it-works">
+
+    <div class="container">
+
+        <div class="section-header">
+            <h2>How Home Collection Works</h2>
+
+            <p>
+                Simple, fast, and reliable diagnostic testing from the comfort of your home.
+            </p>
+        </div>
+
+        <div class="steps-grid">
+
+            <!-- STEP 1 -->
+            <div class="step-card">
+
+                <div class="step-number">1</div>
+
+                <i class="fas fa-notes-medical"></i>
+
+                <h3>Book Your Test</h3>
+
+                <p>
+                    Select your required tests and submit your booking request online.
+                </p>
+
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="step-card">
+
+                <div class="step-number">2</div>
+
+                <i class="fas fa-phone-volume"></i>
+
+                <h3>Lab Confirmation</h3>
+
+                <p>
+                    Our lab team verifies your request and confirms your appointment quickly.
+                </p>
+
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="step-card">
+
+                <div class="step-number">3</div>
+
+                <i class="fas fa-house-user"></i>
+
+                <h3>Sample Collection</h3>
+
+                <p>
+                    Our trained staff visits your home safely for sample collection.
+                </p>
+
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="step-card">
+
+                <div class="step-number">4</div>
+
+                <i class="fas fa-file-medical-alt"></i>
+
+                <h3>Digital Reports</h3>
+
+                <p>
+                    Receive your reports securely via WhatsApp, PDF, or email.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </section>
   <!-- 10. CONTACT -->
   <section id="contact" class="contact section">
@@ -747,6 +1071,10 @@
 
    <i class="fab fa-whatsapp"></i>
 
+</a>
+<!-- FLOATING CALL BUTTON -->
+<a href="tel:+918467812558" class="call-btn">
+   <i class="fas fa-phone-alt"></i>
 </a>
  <!-- CART SIDEBAR -->
 
