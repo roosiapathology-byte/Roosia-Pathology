@@ -129,7 +129,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (proceedBtn) {
     proceedBtn.addEventListener('click', function () {
-      if (cart.length === 0) { showToast('Cart is empty. Please add tests first.', 'warning'); return; }
+      if (cart.length < 1) {
+  showToast('Choosing at least 1 test is necessary to book a home visit.', 'warning');
+  return;
+}
       closeCart();
       var sec = document.getElementById('appointment');
       if (sec) window.scrollTo({ top: sec.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
@@ -160,6 +163,25 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+    /* ── 5b. COLLECTION TYPE — walkin/home toggle ─────────────── */
+  function applyCollectionType() {
+    var val = (document.querySelector('input[name="collection"]:checked') || {}).value || 'home';
+    var timeGroup = document.getElementById('time-slot-group');
+    if (val === 'walkin') {
+      if (timeGroup) timeGroup.style.display = 'none';
+      var ptTime = document.getElementById('pt-time');
+      if (ptTime) ptTime.value = '';
+      document.querySelectorAll('.time-chip').forEach(function (c) { c.classList.remove('selected'); });
+      clearErr('err-time');
+    } else {
+      if (timeGroup) timeGroup.style.display = 'block';
+    }
+    updateCartUI();
+  }
+  document.querySelectorAll('input[name="collection"]').forEach(function (r) {
+    r.addEventListener('change', applyCollectionType);
+  });
+
   /* ── 5. UPI TOGGLE ──────────────────────────────────────────── */
   var upiSection = document.getElementById('upi-section');
   document.querySelectorAll('input[name="payment"]').forEach(function (r) {
@@ -168,134 +190,190 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  /* ── 6. LOCATION VARS — declared first ─────────────────────── */
-  var liveBtn    = document.getElementById('get-live-location');
-  var latInput   = document.getElementById('latitude');
-  var lngInput   = document.getElementById('longitude');
-  var liveStatus = document.getElementById('live-location-status');
-  var mapStatus  = document.getElementById('map-location-status');
-  var selfSection  = document.getElementById('self-location-section');
-  var otherSection = document.getElementById('other-location-section');
-  var bookingSelf  = document.getElementById('booking-self');
-  var bookingOther = document.getElementById('booking-other');
-
+  /* ── 6. LOCATION SYSTEM ─────────────────────────────────────── */
+  var latInput      = document.getElementById('latitude');
+  var lngInput      = document.getElementById('longitude');
+  var bookingSelf   = document.getElementById('booking-self');
+  var bookingOther  = document.getElementById('booking-other');
+  var locationSec   = document.getElementById('location-section');
   var bookingMap    = null;
   var bookingMarker = null;
   var mapInited     = false;
   var bookingMode   = null;
+  var locNextBtn    = document.getElementById('loc-next-btn');
+  var addrInput     = document.getElementById('pt-address');
+  var findAddrBtn   = document.getElementById('find-address-btn');
+  var addrStatus    = document.getElementById('address-search-status');
+  var mapStatus     = document.getElementById('map-location-status');
+  var bookingMapDiv = document.getElementById('booking-map');
 
-  /* ── HELPER: reset location ─────────────────────────────────── */
-  function resetLocationState() {
-    if (latInput)   latInput.value   = '';
-    if (lngInput)   lngInput.value   = '';
-    if (liveStatus) liveStatus.innerHTML = '';
-    if (mapStatus)  mapStatus.innerHTML  = '';
-    if (liveBtn) {
-      liveBtn.innerHTML = '<i class="fas fa-location-crosshairs" id="loc-icon"></i><span id="loc-btn-text">Share Current Location</span>';
-      liveBtn.className = 'loc-btn';
-      liveBtn.disabled  = false;
-    }
-    if (bookingMarker && bookingMap) {
-      bookingMap.removeLayer(bookingMarker);
-      bookingMarker = null;
-    }
+  /* Lock/unlock Next button */
+  function setLocNext(on) {
+    if (!locNextBtn) return;
+    locNextBtn.disabled      = !on;
+    locNextBtn.style.opacity = on ? '1' : '0.5';
+    locNextBtn.style.cursor  = on ? 'pointer' : 'not-allowed';
+  }
+  setLocNext(false);
+
+  /* Haversine */
+  function getDistanceKm(lat1, lon1, lat2, lon2) {
+    var R    = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLon = (lon2 - lon1) * Math.PI / 180;
+    var a    = Math.sin(dLat/2)*Math.sin(dLat/2)
+              + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)
+              * Math.sin(dLon/2)*Math.sin(dLon/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   }
 
-  /* ── 7. BOOKING TYPE RADIO ──────────────────────────────────── */
+  /* Update map status + coords */
+  function onLocationSet(lat, lng) {
+    var dist   = getDistanceKm(LAB_LAT, LAB_LNG, lat, lng);
+    var inArea = dist <= SERVICE_RADIUS_KM;
+    if (inArea) { latInput.value = lat; lngInput.value = lng; }
+    else         { latInput.value = ''; lngInput.value = ''; }
+    showStatus(mapStatus, inArea ? 'success' : 'error',
+      '<i class="fas fa-' + (inArea ? 'check-circle' : 'times-circle') + '"></i> '
+      + (inArea
+        ? '<strong>✅ Service available in your area</strong> — ' + dist.toFixed(2) + ' km from lab. You can drag the pin for exact location.'
+        : '<strong>❌ Outside service area</strong> — ' + dist.toFixed(2) + ' km from lab. We serve within 5 km of Jhansi only.')
+    );
+    setLocNext(inArea);
+  }
+
+  /* Init map */
+  function initMap() {
+    if (mapInited || typeof L === 'undefined') return;
+    mapInited = true;
+    bookingMap = L.map('booking-map').setView([LAB_LAT, LAB_LNG], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap', maxZoom: 19
+    }).addTo(bookingMap);
+    /* Lab marker */
+    L.marker([LAB_LAT, LAB_LNG], {
+      icon: L.divIcon({
+        className: '',
+        html: '<div style="background:#C8102E;color:#fff;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.3);">🏥 Roosia Lab</div>',
+        iconAnchor: [45, 10]
+      })
+    }).addTo(bookingMap);
+    /* 5 km service circle */
+    L.circle([LAB_LAT, LAB_LNG], {
+      radius: SERVICE_RADIUS_KM * 1000,
+      color: '#C8102E', fillColor: '#C8102E',
+      fillOpacity: 0.07, weight: 2, dashArray: '8,5'
+    }).addTo(bookingMap).bindTooltip('5 km service area');
+    setTimeout(function () { bookingMap.invalidateSize(); }, 200);
+  }
+
+  /* Place / move draggable pin */
+  function placePin(lat, lng) {
+    if (!bookingMap) return;
+    if (bookingMarker) {
+      bookingMarker.setLatLng([lat, lng]);
+    } else {
+      bookingMarker = L.marker([lat, lng], { draggable: true }).addTo(bookingMap);
+      bookingMarker.on('dragend', function () {
+        var p = bookingMarker.getLatLng();
+        onLocationSet(p.lat, p.lng);
+      });
+    }
+    bookingMap.setView([lat, lng], 16);
+    onLocationSet(lat, lng);
+  }
+
+  /* Nominatim geocode */
+  function geocodeAndPin(query) {
+    if (!query || query.length < 3) {
+      showStatus(addrStatus, 'error', 'Please enter a more detailed address.');
+      return;
+    }
+    findAddrBtn.disabled  = true;
+    findAddrBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Searching…</span>';
+    addrStatus.innerHTML  = '';
+
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&q='
+      + encodeURIComponent(query + ', Jhansi, Uttar Pradesh, India');
+
+    fetch(url, { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        findAddrBtn.disabled  = false;
+        findAddrBtn.innerHTML = '<i class="fas fa-search"></i> <span>Find on Map</span>';
+
+        if (!data || data.length === 0) {
+          showStatus(addrStatus, 'error',
+            '<i class="fas fa-exclamation-circle"></i> Address not found. Try adding nearby landmark or area name.');
+          return;
+        }
+
+        var lat = parseFloat(data[0].lat);
+        var lng = parseFloat(data[0].lon);
+
+        /* Show map */
+        bookingMapDiv.style.display = 'block';
+        if (!mapInited) initMap();
+        setTimeout(function () {
+          bookingMap.invalidateSize();
+          placePin(lat, lng);
+        }, 100);
+
+        showStatus(addrStatus, 'success',
+          '<i class="fas fa-check-circle"></i> Location found on map. <strong>Drag the pin</strong> to set the exact spot.');
+      })
+      .catch(function () {
+        findAddrBtn.disabled  = false;
+        findAddrBtn.innerHTML = '<i class="fas fa-search"></i> <span>Find on Map</span>';
+        showStatus(addrStatus, 'error',
+          '<i class="fas fa-exclamation-circle"></i> Could not connect. Check internet and try again.');
+      });
+  }
+
+  /* Booking type radio — show location section for BOTH */
   function onBookingTypeChange() {
     var checked = document.querySelector('input[name="bookingFor"]:checked');
     bookingMode = checked ? checked.value : null;
-    resetLocationState();
     clearErr('err-booking-for');
+
+    /* Reset */
+    latInput.value = ''; lngInput.value = '';
+    if (addrInput)  addrInput.value  = '';
+    if (addrStatus) addrStatus.innerHTML = '';
+    if (mapStatus)  mapStatus.innerHTML  = '';
+    if (bookingMapDiv) bookingMapDiv.style.display = 'none';
+    if (bookingMarker && bookingMap) { bookingMap.removeLayer(bookingMarker); bookingMarker = null; }
+    setLocNext(false);
+
     if (bookingMode === 'self') {
-      selfSection.style.display  = 'block';
-      otherSection.style.display = 'none';
+      locationSec.style.display = 'block';
+      document.querySelector('#loc-info-text strong').textContent = 'Enter your collection address';
+      document.querySelector('#loc-info-text p').textContent = 'Type your address. The map will find it. Drag the pin to mark the exact location.';
     } else if (bookingMode === 'other') {
-      selfSection.style.display  = 'none';
-      otherSection.style.display = 'block';
-      initBookingMap();
+      locationSec.style.display = 'block';
+      document.querySelector('#loc-info-text strong').textContent = "Enter patient's address";
+      document.querySelector('#loc-info-text p').textContent = "Type the patient's address. The map will find it. Drag the pin to mark the exact location.";
+    } else {
+      locationSec.style.display = 'none';
     }
   }
 
   if (bookingSelf)  bookingSelf.addEventListener('change',  onBookingTypeChange);
   if (bookingOther) bookingOther.addEventListener('change', onBookingTypeChange);
 
-  /* ── 8. GPS LOCATION ────────────────────────────────────────── */
-  if (liveBtn) {
-    liveBtn.addEventListener('click', function () {
-      if (!navigator.geolocation) {
-        showStatus(liveStatus, 'error', '<i class="fas fa-exclamation-circle"></i> Geolocation is not supported by your browser.');
-        return;
-      }
-      liveBtn.disabled  = true;
-      liveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Detecting location…</span>';
-
-      navigator.geolocation.getCurrentPosition(
-        function (pos) {
-          latInput.value = pos.coords.latitude;
-          lngInput.value = pos.coords.longitude;
-
-          showStatus(liveStatus, 'success',
-            '<i class="fas fa-check-circle"></i> <strong>Location captured successfully!</strong><br>'
-            + '<small style="opacity:0.8;">Lat: ' + pos.coords.latitude.toFixed(5)
-            + ' &nbsp;|&nbsp; Lng: ' + pos.coords.longitude.toFixed(5) + '</small>');
-
-          liveBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span>Location Shared ✓</span>';
-          liveBtn.classList.add('loc-btn-success');
-          liveBtn.disabled = false;
-        },
-        function (err) {
-          var msg = 'Could not get location. Please allow location permission and try again.';
-          if (err.code === 1) msg = 'Location permission denied. Please allow it in your browser settings and try again.';
-          if (err.code === 3) msg = 'Location request timed out. Please try again.';
-          showStatus(liveStatus, 'error', '<i class="fas fa-exclamation-circle"></i> ' + msg);
-          liveBtn.innerHTML = '<i class="fas fa-location-crosshairs"></i> <span>Share Current Location</span>';
-          liveBtn.disabled  = false;
-        },
-        { timeout: 12000, enableHighAccuracy: true }
-      );
+  /* Find address button */
+  if (findAddrBtn) {
+    findAddrBtn.addEventListener('click', function () {
+      geocodeAndPin(addrInput ? addrInput.value.trim() : '');
     });
   }
 
-  /* ── 9. MAP PICKER ──────────────────────────────────────────── */
-  function initBookingMap() {
-    if (mapInited || typeof L === 'undefined') return;
-    mapInited = true;
-
-    bookingMap = L.map('booking-map').setView([LAB_LAT, LAB_LNG], 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors', maxZoom: 19
-    }).addTo(bookingMap);
-
-    L.marker([LAB_LAT, LAB_LNG], {
-      icon: L.divIcon({ className: 'lab-marker', html: '<div style="background:#C8102E;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);">🏥 Roosia Lab</div>', iconAnchor: [50, 10] })
-    }).addTo(bookingMap);
-
-    L.circle([LAB_LAT, LAB_LNG], {
-      radius: SERVICE_RADIUS_KM * 1000,
-      color: '#C8102E', fillColor: '#C8102E',
-      fillOpacity: 0.07, weight: 2, dashArray: '8,5'
-    }).addTo(bookingMap).bindTooltip('5 km service area', { permanent: false });
-
-    bookingMap.on('click', function (e) {
-      latInput.value = e.latlng.lat;
-      lngInput.value = e.latlng.lng;
-      if (bookingMarker) {
-        bookingMarker.setLatLng(e.latlng);
-      } else {
-        bookingMarker = L.marker(e.latlng, { draggable: true }).addTo(bookingMap);
-        bookingMarker.on('dragend', function () {
-          var pos = bookingMarker.getLatLng();
-          latInput.value = pos.lat; lngInput.value = pos.lng;
-          updateMapStatus(pos.lat, pos.lng);
-        });
-      }
-      updateMapStatus(e.latlng.lat, e.latlng.lng);
+  /* Enter key on address input */
+  if (addrInput) {
+    addrInput.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); geocodeAndPin(this.value.trim()); }
     });
-
-    setTimeout(function () { bookingMap.invalidateSize(); }, 150);
   }
-
   function updateMapStatus(lat, lng) {
     var dist   = getDistanceKm(LAB_LAT, LAB_LNG, lat, lng);
     var inArea = dist <= SERVICE_RADIUS_KM;
@@ -407,13 +485,24 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.bk-next').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var next = parseInt(this.getAttribute('data-next'), 10);
-      if (validateStep(currentStep)) goToStep(next);
+      if (!validateStep(currentStep)) return;
+      /* If walk-in and going to step 3, skip to step 4 */
+      if (next === 3) {
+        var collVal = (document.querySelector('input[name="collection"]:checked') || {}).value || 'home';
+        if (collVal === 'walkin') { next = 4; }
+      }
+      goToStep(next);
     });
   });
 
   document.querySelectorAll('.bk-back').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var back = parseInt(this.getAttribute('data-back'), 10);
+      /* If walk-in and going back to step 3, skip to step 2 instead */
+      if (back === 3) {
+        var collVal = (document.querySelector('input[name="collection"]:checked') || {}).value || 'home';
+        if (collVal === 'walkin') { back = 2; }
+      }
       goToStep(back);
     });
   });
@@ -453,52 +542,48 @@ document.addEventListener('DOMContentLoaded', function () {
     if (step === 1) {
       var name  = document.getElementById('pt-name').value.trim();
       var phone = document.getElementById('pt-phone').value.trim();
-      var addr  = document.getElementById('pt-address').value.trim();
 
-      if (!name) { showErr('err-name', 'Full name is required.'); ok = false; }
-      else if (name.length < 2) { showErr('err-name', 'Please enter your full name.'); ok = false; }
+      if (!name || name.length < 2) { showErr('err-name', 'Full name is required.'); ok = false; }
       else clearErr('err-name');
 
-      if (!phone) {
-        showErr('err-phone', 'Phone number is required.'); ok = false;
-      } else if (!/^[0-9]{10}$/.test(phone)) {
-        showErr('err-phone', 'Please enter a valid 10-digit mobile number (numbers only).'); ok = false;
+      if (!phone || !/^[0-9]{10}$/.test(phone)) {
+        showErr('err-phone', 'Valid 10-digit phone number required.'); ok = false;
       } else clearErr('err-phone');
-
-      if (!addr) { showErr('err-address', 'Address is required.'); ok = false; }
-      else clearErr('err-address');
     }
 
     if (step === 2) {
-      var cat  = document.getElementById('pt-category').value;
       var date = document.getElementById('pt-date').value;
+      var collVal = (document.querySelector('input[name="collection"]:checked') || {}).value || 'home';
       var time = document.getElementById('pt-time') ? document.getElementById('pt-time').value : '';
-
-      if (!cat)  { showErr('err-category', 'Please select a test category.'); ok = false; }
-      else clearErr('err-category');
 
       if (!date) { showErr('err-date', 'Please select a preferred date.'); ok = false; }
       else clearErr('err-date');
 
-      if (!time) { showErr('err-time', 'Please select a time slot.'); ok = false; }
-      else clearErr('err-time');
+      /* Time slot only required for home collection */
+      if (collVal !== 'walkin') {
+        if (!time) { showErr('err-time', 'Please select a time slot.'); ok = false; }
+        else clearErr('err-time');
+      } else {
+        clearErr('err-time');
+      }
     }
 
     if (step === 3) {
-      if (!bookingMode) {
-        showErr('err-booking-for', 'Please select who this booking is for.');
-        ok = false;
+      var collVal3 = (document.querySelector('input[name="collection"]:checked') || {}).value || 'home';
+      if (collVal3 === 'walkin') {
+        /* Walk-in skips step 3 entirely — always valid */
       } else {
-        clearErr('err-booking-for');
-        var lat = latInput ? latInput.value.trim() : '';
-        var lng = lngInput ? lngInput.value.trim() : '';
-        if (!lat || !lng) {
-          if (bookingMode === 'self') {
-            showStatus(liveStatus, 'error', '<i class="fas fa-exclamation-circle"></i> Please share your GPS location first.');
-          } else {
-            showStatus(mapStatus, 'error', '<i class="fas fa-exclamation-circle"></i> Please tap on the map to pin the patient\'s location.');
-          }
+        if (!bookingMode) {
+          showErr('err-booking-for', 'Please select who this booking is for.');
           ok = false;
+        } else {
+          clearErr('err-booking-for');
+          var lat = latInput ? latInput.value.trim() : '';
+          var lng = lngInput ? lngInput.value.trim() : '';
+          if (!lat || !lng) {
+            showStatus(mapStatus, 'error', '<i class="fas fa-exclamation-circle"></i> Please enter your address and find it on the map first.');
+            ok = false;
+          }
         }
       }
     }
@@ -511,9 +596,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var name       = document.getElementById('pt-name').value.trim();
     var phone      = document.getElementById('pt-phone').value.trim();
     var email      = (document.getElementById('pt-email') || {}).value || '';
-    var address    = document.getElementById('pt-address').value.trim();
-    var category   = document.getElementById('pt-category');
-    var catLabel   = category ? category.options[category.selectedIndex].text : '';
+    var address    = document.getElementById('pt-address') ? document.getElementById('pt-address').value.trim() : '';
     var date       = document.getElementById('pt-date').value;
     var time       = document.getElementById('pt-time') ? document.getElementById('pt-time').value : '';
     var collection = document.querySelector('input[name="collection"]:checked');
@@ -529,22 +612,18 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!el) return;
 
     el.innerHTML = ''
-      + summaryRow('fas fa-user',           'Patient Name',  name)
-      + summaryRow('fas fa-phone',           'Phone',         '+91 ' + phone)
-      + (email ? summaryRow('fas fa-envelope', 'Email',       email) : '')
-      + summaryRow('fas fa-home',            'Address',       address)
-      + summaryRow('fas fa-flask',           'Category',      catLabel)
-      + summaryRow('fas fa-calendar',        'Date',          date)
-      + summaryRow('fas fa-clock',           'Time',          time)
-      + summaryRow('fas fa-truck',           'Collection',    collLabel)
-      + summaryRow('fas fa-vials',           'Selected Tests',testsList)
-      + summaryRow('fas fa-map-marker-alt',  'Booking For',   bookingMode === 'self' ? 'Myself' : 'Someone Else')
-      + '<div class="summary-total">'
-      + '<span>Tests Total</span><span>₹' + testsTotal + '</span></div>'
-      + '<div class="summary-total">'
-      + '<span>Home Collection</span><span>₹' + homeCharge + '</span></div>'
-      + '<div class="summary-total summary-grand">'
-      + '<span>Grand Total</span><span>₹' + grandTotal + '</span></div>';
+      + summaryRow('fas fa-user',          'Patient Name', name)
+      + summaryRow('fas fa-phone',          'Phone',        '+91 ' + phone)
+      + (email.trim() ? summaryRow('fas fa-envelope', 'Email', email.trim()) : '')
+      + summaryRow('fas fa-home',           'Address',      address || '—')
+      + summaryRow('fas fa-calendar',       'Date',         date)
+      + summaryRow('fas fa-clock',          'Time',         time)
+      + summaryRow('fas fa-truck',          'Collection',   collLabel)
+      + summaryRow('fas fa-vials',          'Tests',        testsList)
+      + summaryRow('fas fa-map-marker-alt', 'Booking For',  bookingMode === 'self' ? 'Myself' : 'Someone Else')
+      + '<div class="summary-total"><span>Tests Total</span><span>₹' + testsTotal + '</span></div>'
+      + '<div class="summary-total"><span>Home Collection</span><span>₹' + homeCharge + '</span></div>'
+      + '<div class="summary-total summary-grand"><span>Grand Total</span><span>₹' + grandTotal + '</span></div>';
   }
 
   function summaryRow(icon, label, value) {
@@ -560,19 +639,23 @@ document.addEventListener('DOMContentLoaded', function () {
   if (appointmentForm) {
     appointmentForm.addEventListener('submit', function (e) {
       e.preventDefault();
+      if (cart.length < 1) {
+  showToast('Choosing at least 1 test is necessary to book a home visit.', 'warning');
+  return;
+}
       if (!validateStep(3)) { goToStep(3); return; }
 
       var name      = document.getElementById('pt-name').value.trim();
       var phone     = document.getElementById('pt-phone').value.trim();
       var emailVal  = (document.getElementById('pt-email') || {}).value || '';
-      var address   = document.getElementById('pt-address').value.trim();
+      var address   = document.getElementById('pt-address') ? document.getElementById('pt-address').value.trim() : '';
       var notes     = document.getElementById('pt-notes').value.trim();
       var lat       = latInput.value.trim();
       var lng       = lngInput.value.trim();
       var collection= (document.querySelector('input[name="collection"]:checked') || {}).value || 'home';
       var date      = document.getElementById('pt-date').value;
       var time      = document.getElementById('pt-time') ? document.getElementById('pt-time').value : '';
-      var category  = document.getElementById('pt-category').value;
+      var category  = '';
       var payment   = (document.querySelector('input[name="payment"]:checked') || {}).value || 'cod';
 
       /* Distance check */
@@ -804,3 +887,63 @@ document.addEventListener('DOMContentLoaded', function () {
   }).observe(cartCountEl, { childList: true, characterData: true, subtree: true });
 
 }); /* END DOMContentLoaded */
+/* HERO SLIDER */
+
+const heroSlides = document.querySelectorAll('.hero-slide');
+const heroDots = document.querySelectorAll('.hero-dot');
+
+let currentHeroSlide = 0;
+
+function showHeroSlide(index){
+
+  heroSlides.forEach(slide=>{
+    slide.classList.remove('active');
+  });
+
+  heroDots.forEach(dot=>{
+    dot.classList.remove('active');
+  });
+
+  heroSlides[index].classList.add('active');
+  heroDots[index].classList.add('active');
+
+}
+
+function nextHeroSlide(){
+
+  currentHeroSlide++;
+
+  if(currentHeroSlide >= heroSlides.length){
+    currentHeroSlide = 0;
+  }
+
+  showHeroSlide(currentHeroSlide);
+
+}
+
+function prevHeroSlide(){
+
+  currentHeroSlide--;
+
+  if(currentHeroSlide < 0){
+    currentHeroSlide = heroSlides.length - 1;
+  }
+
+  showHeroSlide(currentHeroSlide);
+
+}
+
+document.querySelector('.next-slide')
+.addEventListener('click',nextHeroSlide);
+
+document.querySelector('.prev-slide')
+.addEventListener('click',prevHeroSlide);
+
+heroDots.forEach((dot,index)=>{
+  dot.addEventListener('click',()=>{
+    currentHeroSlide = index;
+    showHeroSlide(index);
+  });
+});
+
+setInterval(nextHeroSlide,5000);
