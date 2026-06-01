@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Roosia Pathology - Trusted Diagnostics in Jhansi</title>
   <meta name="description" content="Roosia Pathology in Jhansi provides accurate, affordable, and trusted diagnostic services with home collection available.">
+  <link rel="icon" type="image/png" href="favicon.png">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -775,30 +776,31 @@
 
            
 
-            <!-- SHARED LOCATION SECTION — shown for BOTH modes -->
-            <div id="location-section" style="display:none;">
+            <!-- LOCATION SECTION -->
+            <div id="location-section">
 
               <div class="loc-info-box" id="loc-info-text">
                 <i class="fas fa-info-circle"></i>
                 <div>
                   <strong>Enter collection address</strong>
-                  <p>Type your address below. The map will find it automatically. Then drag the pin to mark the exact location.</p>
+                  <p>Type your full address below. Optionally, click <strong>Show on Map</strong> to pin the exact location.</p>
                 </div>
               </div>
 
-              <!-- Address input + search -->
+              <!-- Address input -->
               <div class="input-wrap" style="margin-bottom:10px;">
                 <i class="fas fa-home input-ico"></i>
                 <input type="text" id="pt-address" name="address"
                   placeholder="e.g. Civil Lines, Jhansi or House no. + Area"
                   autocomplete="off">
               </div>
+              <div class="field-err" id="err-address" style="margin-bottom:6px;"></div>
               <button type="button" id="find-address-btn" class="loc-btn" style="margin-bottom:14px;">
-                <i class="fas fa-search"></i> <span>Find on Map</span>
+                <i class="fas fa-map-marked-alt"></i> <span>Show on Map (optional)</span>
               </button>
               <div id="address-search-status" style="margin-bottom:10px;"></div>
 
-              <!-- Map (hidden until address found) -->
+              <!-- Map (hidden until address searched) -->
               <div id="booking-map" style="display:none;height:300px;border-radius:12px;border:2px solid #e2e8f0;margin-bottom:10px;"></div>
               <div id="map-location-status"></div>
 
@@ -812,7 +814,7 @@
               <button type="button" class="btn btn-outline bk-back" data-back="2">
                 <i class="fas fa-arrow-left"></i> &nbsp;Back
               </button>
-              <button type="button" class="btn btn-primary bk-next" id="loc-next-btn" data-next="4" disabled style="opacity:0.5;cursor:not-allowed;">
+              <button type="button" class="btn btn-primary bk-next" id="loc-next-btn" data-next="4">
                 Next &nbsp;<i class="fas fa-arrow-right"></i>
               </button>
             </div>
