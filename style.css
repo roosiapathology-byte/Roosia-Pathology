@@ -2393,3 +2393,51 @@ p {
   .time-chip { min-width: unset; flex: 1 1 100%; }
   #booking-map { height: 240px !important; }
 }
+/* MOBILE NAV FIX */
+@media (max-width: 768px) {
+
+  .mobile-menu-btn{
+    display:block !important;
+  }
+
+  .hidden-mobile{
+    display:none !important;
+  }
+
+  .nav-links{
+    position:absolute;
+    top:100%;
+    left:0;
+    width:100%;
+    background:#fff;
+    display:none;
+    flex-direction:column;
+    padding:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+    gap:15px;
+  }
+
+  .navbar.nav-open .nav-links{
+    display:flex;
+  }
+
+  .hero-content{
+    grid-template-columns:1fr !important;
+    text-align:center;
+    gap:30px;
+  }
+
+  .hero-image-box{
+    width:280px !important;
+    height:280px !important;
+  }
+
+  .hero-text h1{
+    font-size:2rem !important;
+  }
+
+  .hero-buttons{
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+}
