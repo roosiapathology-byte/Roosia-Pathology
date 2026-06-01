@@ -195,26 +195,15 @@ document.addEventListener('DOMContentLoaded', function () {
   var lngInput      = document.getElementById('longitude');
   var bookingSelf   = document.getElementById('booking-self');
   var bookingOther  = document.getElementById('booking-other');
-  var locationSec   = document.getElementById('location-section');
   var bookingMap    = null;
   var bookingMarker = null;
   var mapInited     = false;
   var bookingMode   = null;
-  var locNextBtn    = document.getElementById('loc-next-btn');
   var addrInput     = document.getElementById('pt-address');
   var findAddrBtn   = document.getElementById('find-address-btn');
   var addrStatus    = document.getElementById('address-search-status');
   var mapStatus     = document.getElementById('map-location-status');
   var bookingMapDiv = document.getElementById('booking-map');
-
-  /* Lock/unlock Next button */
-  function setLocNext(on) {
-    if (!locNextBtn) return;
-    locNextBtn.disabled      = !on;
-    locNextBtn.style.opacity = on ? '1' : '0.5';
-    locNextBtn.style.cursor  = on ? 'pointer' : 'not-allowed';
-  }
-  setLocNext(false);
 
   /* Haversine */
   function getDistanceKm(lat1, lon1, lat2, lon2) {
@@ -227,19 +216,13 @@ document.addEventListener('DOMContentLoaded', function () {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   }
 
-  /* Update map status + coords */
+  /* Called when map pin is placed/dragged — saves coords, shows info (optional) */
   function onLocationSet(lat, lng) {
-    var dist   = getDistanceKm(LAB_LAT, LAB_LNG, lat, lng);
-    var inArea = dist <= SERVICE_RADIUS_KM;
-    if (inArea) { latInput.value = lat; lngInput.value = lng; }
-    else         { latInput.value = ''; lngInput.value = ''; }
-    showStatus(mapStatus, inArea ? 'success' : 'error',
-      '<i class="fas fa-' + (inArea ? 'check-circle' : 'times-circle') + '"></i> '
-      + (inArea
-        ? '<strong>✅ Service available in your area</strong> — ' + dist.toFixed(2) + ' km from lab. You can drag the pin for exact location.'
-        : '<strong>❌ Outside service area</strong> — ' + dist.toFixed(2) + ' km from lab. We serve within 5 km of Jhansi only.')
-    );
-    setLocNext(inArea);
+    latInput.value = lat;
+    lngInput.value = lng;
+    var dist = getDistanceKm(LAB_LAT, LAB_LNG, lat, lng);
+    showStatus(mapStatus, 'success',
+      '<i class="fas fa-map-marker-alt"></i> Pin placed — ' + dist.toFixed(2) + ' km from lab. Drag to adjust.');
   }
 
   /* Init map */
@@ -283,10 +266,11 @@ document.addEventListener('DOMContentLoaded', function () {
     onLocationSet(lat, lng);
   }
 
-  /* Nominatim geocode */
+  /* Nominatim geocode — triggered by "Show on Map" button */
   function geocodeAndPin(query) {
     if (!query || query.length < 3) {
-      showStatus(addrStatus, 'error', 'Please enter a more detailed address.');
+      showStatus(addrStatus, 'error',
+        '<i class="fas fa-exclamation-circle"></i> Please enter a more detailed address first.');
       return;
     }
     findAddrBtn.disabled  = true;
@@ -300,18 +284,17 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(function (r) { return r.json(); })
       .then(function (data) {
         findAddrBtn.disabled  = false;
-        findAddrBtn.innerHTML = '<i class="fas fa-search"></i> <span>Find on Map</span>';
+        findAddrBtn.innerHTML = '<i class="fas fa-map-marked-alt"></i> <span>Show on Map (optional)</span>';
 
         if (!data || data.length === 0) {
           showStatus(addrStatus, 'error',
-            '<i class="fas fa-exclamation-circle"></i> Address not found. Try adding nearby landmark or area name.');
+            '<i class="fas fa-exclamation-circle"></i> Address not found on map. You can still proceed with the address text.');
           return;
         }
 
         var lat = parseFloat(data[0].lat);
         var lng = parseFloat(data[0].lon);
 
-        /* Show map */
         bookingMapDiv.style.display = 'block';
         if (!mapInited) initMap();
         setTimeout(function () {
@@ -320,81 +303,32 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 100);
 
         showStatus(addrStatus, 'success',
-          '<i class="fas fa-check-circle"></i> Location found on map. <strong>Drag the pin</strong> to set the exact spot.');
+          '<i class="fas fa-check-circle"></i> Pinned on map. <strong>Drag the pin</strong> to fine-tune if needed.');
       })
       .catch(function () {
         findAddrBtn.disabled  = false;
-        findAddrBtn.innerHTML = '<i class="fas fa-search"></i> <span>Find on Map</span>';
+        findAddrBtn.innerHTML = '<i class="fas fa-map-marked-alt"></i> <span>Show on Map (optional)</span>';
         showStatus(addrStatus, 'error',
-          '<i class="fas fa-exclamation-circle"></i> Could not connect. Check internet and try again.');
+          '<i class="fas fa-exclamation-circle"></i> Could not connect. You can still proceed with your address text.');
       });
   }
 
-  /* Booking type radio — show location section for BOTH */
-  function onBookingTypeChange() {
-    var checked = document.querySelector('input[name="bookingFor"]:checked');
-    bookingMode = checked ? checked.value : null;
-    clearErr('err-booking-for');
+  /* Update bookingMode label when radio changes */
+  if (bookingSelf)  bookingSelf.addEventListener('change',  function () { bookingMode = 'self'; });
+  if (bookingOther) bookingOther.addEventListener('change', function () { bookingMode = 'other'; });
 
-    /* Reset */
-    latInput.value = ''; lngInput.value = '';
-    if (addrInput)  addrInput.value  = '';
-    if (addrStatus) addrStatus.innerHTML = '';
-    if (mapStatus)  mapStatus.innerHTML  = '';
-    if (bookingMapDiv) bookingMapDiv.style.display = 'none';
-    if (bookingMarker && bookingMap) { bookingMap.removeLayer(bookingMarker); bookingMarker = null; }
-    setLocNext(false);
-
-    if (bookingMode === 'self') {
-      locationSec.style.display = 'block';
-      document.querySelector('#loc-info-text strong').textContent = 'Enter your collection address';
-      document.querySelector('#loc-info-text p').textContent = 'Type your address. The map will find it. Drag the pin to mark the exact location.';
-    } else if (bookingMode === 'other') {
-      locationSec.style.display = 'block';
-      document.querySelector('#loc-info-text strong').textContent = "Enter patient's address";
-      document.querySelector('#loc-info-text p').textContent = "Type the patient's address. The map will find it. Drag the pin to mark the exact location.";
-    } else {
-      locationSec.style.display = 'none';
-    }
-  }
-
-  if (bookingSelf)  bookingSelf.addEventListener('change',  onBookingTypeChange);
-  if (bookingOther) bookingOther.addEventListener('change', onBookingTypeChange);
-
-  /* Find address button */
+  /* Show on Map button */
   if (findAddrBtn) {
     findAddrBtn.addEventListener('click', function () {
       geocodeAndPin(addrInput ? addrInput.value.trim() : '');
     });
   }
 
-  /* Enter key on address input */
+  /* Enter key on address input triggers map search */
   if (addrInput) {
     addrInput.addEventListener('keypress', function (e) {
       if (e.key === 'Enter') { e.preventDefault(); geocodeAndPin(this.value.trim()); }
     });
-  }
-  function updateMapStatus(lat, lng) {
-    var dist   = getDistanceKm(LAB_LAT, LAB_LNG, lat, lng);
-    var inArea = dist <= SERVICE_RADIUS_KM;
-    showStatus(mapStatus,
-      inArea ? 'success' : 'error',
-      '<i class="fas fa-' + (inArea ? 'check-circle' : 'times-circle') + '"></i> '
-      + (inArea
-        ? '<strong>Within service area</strong> — ' + dist.toFixed(2) + ' km from lab ✓'
-        : '<strong>Outside service area</strong> — ' + dist.toFixed(2) + ' km from lab. We do not serve this area yet.')
-    );
-  }
-
-  /* ── 10. HAVERSINE ──────────────────────────────────────────── */
-  function getDistanceKm(lat1, lon1, lat2, lon2) {
-    var R    = 6371;
-    var dLat = (lat2 - lat1) * Math.PI / 180;
-    var dLon = (lon2 - lon1) * Math.PI / 180;
-    var a    = Math.sin(dLat/2)*Math.sin(dLat/2)
-              + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)
-              * Math.sin(dLon/2)*Math.sin(dLon/2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -542,7 +476,15 @@ document.addEventListener('DOMContentLoaded', function () {
     if (step === 1) {
       var name  = document.getElementById('pt-name').value.trim();
       var phone = document.getElementById('pt-phone').value.trim();
+      var selectedBooking =
+document.querySelector('input[name="bookingFor"]:checked');
 
+if (!selectedBooking) {
+  showErr('err-booking-for', 'Please select who this booking is for.');
+  ok = false;
+} else {
+  clearErr('err-booking-for');
+}
       if (!name || name.length < 2) { showErr('err-name', 'Full name is required.'); ok = false; }
       else clearErr('err-name');
 
@@ -578,11 +520,13 @@ document.addEventListener('DOMContentLoaded', function () {
           ok = false;
         } else {
           clearErr('err-booking-for');
-          var lat = latInput ? latInput.value.trim() : '';
-          var lng = lngInput ? lngInput.value.trim() : '';
-          if (!lat || !lng) {
-            showStatus(mapStatus, 'error', '<i class="fas fa-exclamation-circle"></i> Please enter your address and find it on the map first.');
+          /* Only address text is required — map pin is optional */
+          var addrVal = addrInput ? addrInput.value.trim() : '';
+          if (!addrVal || addrVal.length < 5) {
+            showErr('err-address', 'Please enter your full collection address.');
             ok = false;
+          } else {
+            clearErr('err-address');
           }
         }
       }
@@ -658,22 +602,12 @@ document.addEventListener('DOMContentLoaded', function () {
       var category  = '';
       var payment   = (document.querySelector('input[name="payment"]:checked') || {}).value || 'cod';
 
-      /* Distance check */
-      var customerLat = parseFloat(lat);
-      var customerLng = parseFloat(lng);
-      var dist = getDistanceKm(LAB_LAT, LAB_LNG, customerLat, customerLng);
-
-      if (dist > SERVICE_RADIUS_KM) {
-        goToStep(3);
-        setTimeout(function () {
-          var statusEl = bookingMode === 'self' ? liveStatus : mapStatus;
-          showStatus(statusEl, 'error',
-            '<i class="fas fa-times-circle"></i> <strong>Outside service area</strong> — '
-            + dist.toFixed(2) + ' km from lab. We currently serve within 5 km of Jhansi. '
-            + 'Please call <a href="tel:+918467812558" style="color:inherit;font-weight:700;">+91 8467812558</a> for further help.');
-        }, 300);
-        return;
-      }
+      /* Coords saved if person used the map (optional) */
+      var customerLat = parseFloat(lat) || 0;
+      var customerLng = parseFloat(lng) || 0;
+      var dist = (customerLat && customerLng)
+        ? getDistanceKm(LAB_LAT, LAB_LNG, customerLat, customerLng)
+        : 0;
 
       /* Cart summary */
       var homeCharge    = (collection === 'home') ? 50 : 0;
