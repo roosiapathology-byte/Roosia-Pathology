@@ -2441,3 +2441,10 @@ p {
     flex-wrap:wrap;
   }
 }
+@media (max-width:768px){
+
+  body{
+    background:red !important;
+  }
+
+}
