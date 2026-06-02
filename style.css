@@ -364,16 +364,14 @@ p {
 .hero-slider{
   position:relative;
   overflow:hidden;
-  min-height:100vh;
   background:#f8f9fa;
 }
 
 .hero-slide{
   display:none;
-  min-height:100vh;
   align-items:center;
   position:relative;
-  padding:120px 0 80px;
+  padding:120px 0 40px;
 }
 
 .hero-slide.active{
@@ -576,8 +574,8 @@ p {
   padding: 30px 40px;
   border-radius: 12px;
   box-shadow: var(--shadow);
-  margin-top: 50px;
-  transform: translateY(50%);
+  margin-top: 20px;
+  transform: none;
   position: relative;
   z-index: 10;
   animation: fadeInUp 0.8s ease 0.6s both;
@@ -2455,4 +2453,15 @@ p {
   margin-top:20px !important;
   transform:none !important;
 }
+}
+.hero-content{
+  align-items:center;
+}
+
+.hero-image-box{
+  margin-bottom:0 !important;
+}
+
+.hero-slide{
+  padding-bottom:20px !important;
 }
