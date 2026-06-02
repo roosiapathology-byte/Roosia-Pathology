@@ -2465,3 +2465,160 @@ p {
 .hero-slide{
   padding-bottom:20px !important;
 }
+/* ==========================
+   COMPLETE MOBILE OVERRIDE
+   ========================== */
+
+@media screen and (max-width:768px){
+
+  /* General */
+  body{
+    overflow-x:hidden;
+  }
+
+  .container{
+    width:100%;
+    padding:0 15px;
+  }
+
+  /* Navbar */
+  .nav-container{
+    padding:12px 15px;
+  }
+
+  .nav-links{
+    display:none !important;
+  }
+
+  .mobile-menu-btn{
+    display:block !important;
+    font-size:24px;
+  }
+
+  .logo{
+    font-size:1.3rem !important;
+  }
+
+  .hidden-mobile{
+    display:none !important;
+  }
+
+  /* Hero Section */
+  .hero-slider,
+  .hero-slide{
+    min-height:auto !important;
+    height:auto !important;
+  }
+
+  .hero-slide{
+    padding:100px 0 30px !important;
+  }
+
+  .hero-content{
+    display:flex !important;
+    flex-direction:column !important;
+    text-align:center !important;
+    gap:25px !important;
+  }
+
+  .hero-text{
+    order:1;
+  }
+
+  .hero-image{
+    order:2;
+  }
+
+  .hero-text h1{
+    font-size:2rem !important;
+    line-height:1.2 !important;
+    margin-bottom:15px;
+  }
+
+  .hero-text p{
+    font-size:1rem !important;
+    line-height:1.6;
+  }
+
+  .hero-image-box{
+    width:220px !important;
+    height:220px !important;
+    margin:0 auto !important;
+  }
+
+  .hero-buttons{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .hero-buttons .btn{
+    width:100%;
+  }
+
+  /* Stats */
+  .statistics-bar{
+    flex-direction:column !important;
+    gap:15px;
+    transform:none !important;
+    margin-top:20px !important;
+  }
+
+  /* Grids */
+  .about-grid,
+  .contact-grid,
+  .tests-grid,
+  .packages-grid,
+  .services-grid,
+  .gallery-grid,
+  .doctors-grid,
+  .footer-grid{
+    grid-template-columns:1fr !important;
+  }
+
+  /* Cards */
+  .test-card,
+  .package-card,
+  .service-card,
+  .doctor-card{
+    width:100%;
+  }
+
+  /* Booking Form */
+  input,
+  select,
+  textarea{
+    font-size:16px !important;
+  }
+
+  .form-row{
+    display:flex !important;
+    flex-direction:column !important;
+  }
+
+  .booking-option{
+    width:100%;
+  }
+
+  /* Buttons */
+  .btn{
+    min-height:50px;
+    font-size:15px;
+  }
+
+  /* Cart */
+  .cart-sidebar{
+    width:100% !important;
+  }
+
+  /* Floating Buttons */
+  .floating-buttons{
+    right:15px;
+    bottom:15px;
+  }
+
+  /* Footer */
+  footer{
+    text-align:center;
+  }
+}
