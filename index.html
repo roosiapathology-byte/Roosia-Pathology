@@ -41,6 +41,7 @@
         <a href="#packages">Packages</a>
         <a href="#doctors">Doctors</a>
         <a href="#gallery">Photos</a>
+        <a href="#reviews">Reviews</a>
         <a href="#contact">Contact</a>
       </div>
       
@@ -1042,6 +1043,92 @@ Roosia Pathology is a trusted pathology lab and diagnostic centre in Jhansi prov
     </div>
 
 </section>
+  <!-- REVIEWS SECTION -->
+  <section id="reviews" class="reviews-section section bg-light">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-subtitle">Patient Feedback</span>
+        <h2>What Our Patients Say</h2>
+        <p class="intro-text">Real experiences from our valued patients in Jhansi.</p>
+      </div>
+
+      <!-- Review Stats Bar -->
+      <div class="review-stats-bar">
+        <div class="review-overall">
+          <div class="overall-score" id="overall-score">5.0</div>
+          <div class="overall-stars" id="overall-stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          </div>
+          <div class="overall-label" id="overall-label">0 Reviews</div>
+        </div>
+        <div class="review-bars" id="review-bars">
+          <div class="rbar-row"><span>5 ★</span><div class="rbar-track"><div class="rbar-fill" data-star="5" style="width:0%"></div></div><span class="rbar-count" data-star="5">0</span></div>
+          <div class="rbar-row"><span>4 ★</span><div class="rbar-track"><div class="rbar-fill" data-star="4" style="width:0%"></div></div><span class="rbar-count" data-star="4">0</span></div>
+          <div class="rbar-row"><span>3 ★</span><div class="rbar-track"><div class="rbar-fill" data-star="3" style="width:0%"></div></div><span class="rbar-count" data-star="3">0</span></div>
+          <div class="rbar-row"><span>2 ★</span><div class="rbar-track"><div class="rbar-fill" data-star="2" style="width:0%"></div></div><span class="rbar-count" data-star="2">0</span></div>
+          <div class="rbar-row"><span>1 ★</span><div class="rbar-track"><div class="rbar-fill" data-star="1" style="width:0%"></div></div><span class="rbar-count" data-star="1">0</span></div>
+        </div>
+      </div>
+
+      <!-- Reviews Grid -->
+      <div class="reviews-grid" id="reviews-grid">
+        <!-- Reviews rendered by JS -->
+        <div class="no-reviews-msg" id="no-reviews-msg" style="display:none">
+          <i class="fas fa-comment-medical"></i>
+          <p>No reviews yet. Be the first to share your experience!</p>
+        </div>
+      </div>
+
+      <!-- Load More -->
+      <div class="reviews-load-more text-center" id="load-more-wrap" style="display:none">
+        <button class="btn btn-outline" id="load-more-btn">Load More Reviews</button>
+      </div>
+
+      <!-- Write Review -->
+      <div class="write-review-section">
+        <h3><i class="fas fa-pen"></i> Share Your Experience</h3>
+        <p>Had a test at Roosia Pathology? Help others by leaving a review.</p>
+        <div class="review-form" id="review-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Your Name *</label>
+              <input type="text" id="rv-name" placeholder="e.g. Rahul Sharma" maxlength="50">
+              <span class="rv-err" id="rv-err-name"></span>
+            </div>
+            <div class="form-group">
+              <label>Phone (optional, not shown publicly)</label>
+              <input type="tel" id="rv-phone" placeholder="+91 XXXXXXXXXX" maxlength="15">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Your Rating *</label>
+            <div class="star-rating-input" id="star-input">
+              <i class="far fa-star" data-val="1"></i>
+              <i class="far fa-star" data-val="2"></i>
+              <i class="far fa-star" data-val="3"></i>
+              <i class="far fa-star" data-val="4"></i>
+              <i class="far fa-star" data-val="5"></i>
+            </div>
+            <span class="rv-err" id="rv-err-star"></span>
+          </div>
+          <div class="form-group">
+            <label>Test / Service (optional)</label>
+            <input type="text" id="rv-test" placeholder="e.g. CBC, Full Body Checkup" maxlength="100">
+          </div>
+          <div class="form-group">
+            <label>Your Review *</label>
+            <textarea id="rv-comment" rows="4" placeholder="Share your experience with us..." maxlength="500"></textarea>
+            <span class="rv-err" id="rv-err-comment"></span>
+            <span class="rv-char-count" id="rv-char-count">0 / 500</span>
+          </div>
+          <button class="btn btn-primary" id="rv-submit-btn">
+            <i class="fas fa-paper-plane"></i> Submit Review
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 10. CONTACT -->
   <section id="contact" class="contact section">
     <div class="container">
