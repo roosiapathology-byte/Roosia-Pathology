@@ -881,3 +881,311 @@ heroDots.forEach((dot,index)=>{
 });
 
 setInterval(nextHeroSlide,5000);
+/* ================================================================
+   HERO SLIDER — TOUCH SWIPE SUPPORT
+================================================================ */
+(function () {
+  var slider = document.querySelector('.hero-slider');
+  if (!slider) return;
+
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var isDragging  = false;
+  var SWIPE_THRESHOLD = 50; // px
+
+  slider.addEventListener('touchstart', function (e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    isDragging  = true;
+  }, { passive: true });
+
+  slider.addEventListener('touchmove', function (e) {
+    if (!isDragging) return;
+    var dx = Math.abs(e.touches[0].clientX - touchStartX);
+    var dy = Math.abs(e.touches[0].clientY - touchStartY);
+    // If predominantly horizontal swipe, prevent page scroll
+    if (dx > dy && dx > 10) e.preventDefault();
+  }, { passive: false });
+
+  slider.addEventListener('touchend', function (e) {
+    if (!isDragging) return;
+    isDragging = false;
+    var deltaX = e.changedTouches[0].clientX - touchStartX;
+    var deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
+
+    // Only trigger if horizontal movement dominates
+    if (Math.abs(deltaX) > SWIPE_THRESHOLD && Math.abs(deltaX) > deltaY * 1.5) {
+      if (deltaX < 0) {
+        nextHeroSlide();
+      } else {
+        prevHeroSlide();
+      }
+    }
+  }, { passive: true });
+})();
+
+/* ================================================================
+   REVIEWS SYSTEM — localStorage-based
+================================================================ */
+(function () {
+  var STORAGE_KEY = 'roosia_reviews';
+
+  // Seed reviews if none exist yet
+  var SEED_REVIEWS = [
+    { name: 'Priya Agarwal', rating: 5, test: 'Full Body Checkup', comment: 'Excellent service! Reports came on WhatsApp within a few hours. Very professional staff and affordable pricing. Highly recommend!', date: '2025-05-10' },
+    { name: 'Rakesh Verma', rating: 5, test: 'CBC + Blood Sugar', comment: 'Home collection was very convenient. The technician was on time, hygienic, and polite. Reports were accurate and fast. 5 stars!', date: '2025-05-22' },
+    { name: 'Sunita Jain', rating: 4, test: 'Thyroid (T3 T4 TSH)', comment: 'Good experience overall. Prices are very reasonable. Report delivery was prompt. Would definitely visit again.', date: '2025-06-01' }
+  ];
+
+  function loadReviews() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    // No reviews yet — save seeds
+    saveReviews(SEED_REVIEWS);
+    return SEED_REVIEWS.slice();
+  }
+
+  function saveReviews(arr) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); } catch (e) {}
+  }
+
+  function starsHTML(n) {
+    var s = '';
+    for (var i = 1; i <= 5; i++) {
+      s += i <= n ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+    }
+    return s;
+  }
+
+  function avatarLetter(name) {
+    return (name || '?')[0].toUpperCase();
+  }
+
+  function formatDate(d) {
+    try {
+      var dt = new Date(d);
+      return dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch(e) { return d; }
+  }
+
+  var COLORS = ['#C8102E','#2563eb','#059669','#d97706','#7c3aed','#db2777'];
+  function avatarColor(name) {
+    var code = 0;
+    for (var i = 0; i < name.length; i++) code += name.charCodeAt(i);
+    return COLORS[code % COLORS.length];
+  }
+
+  var PAGE_SIZE = 6;
+  var shownCount = PAGE_SIZE;
+  var allReviews = loadReviews();
+
+  function updateStats() {
+    if (!allReviews.length) return;
+    var total = allReviews.length;
+    var sum   = allReviews.reduce(function (s, r) { return s + r.rating; }, 0);
+    var avg   = (sum / total).toFixed(1);
+
+    var scoreEl = document.getElementById('overall-score');
+    var labelEl = document.getElementById('overall-label');
+    var starsEl = document.getElementById('overall-stars');
+    if (scoreEl) scoreEl.textContent = avg;
+    if (labelEl) labelEl.textContent = total + (total === 1 ? ' Review' : ' Reviews');
+    if (starsEl) starsEl.innerHTML = starsHTML(Math.round(parseFloat(avg)));
+
+    // Bar fills
+    for (var s = 1; s <= 5; s++) {
+      var cnt   = allReviews.filter(function (r) { return r.rating === s; }).length;
+      var fill  = document.querySelector('.rbar-fill[data-star="' + s + '"]');
+      var count = document.querySelector('.rbar-count[data-star="' + s + '"]');
+      if (fill)  fill.style.width  = (total ? ((cnt / total) * 100).toFixed(0) : 0) + '%';
+      if (count) count.textContent = cnt;
+    }
+  }
+
+  function renderReviews() {
+    var grid      = document.getElementById('reviews-grid');
+    var noMsg     = document.getElementById('no-reviews-msg');
+    var loadWrap  = document.getElementById('load-more-wrap');
+    if (!grid) return;
+
+    // Clear old cards (keep no-reviews-msg)
+    grid.querySelectorAll('.review-card').forEach(function (c) { c.remove(); });
+
+    if (!allReviews.length) {
+      if (noMsg) noMsg.style.display = 'flex';
+      if (loadWrap) loadWrap.style.display = 'none';
+      return;
+    }
+    if (noMsg) noMsg.style.display = 'none';
+
+    var sorted  = allReviews.slice().sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
+    var visible = sorted.slice(0, shownCount);
+
+    visible.forEach(function (r, idx) {
+      var card = document.createElement('div');
+      card.className = 'review-card reveal';
+      card.style.transitionDelay = (idx % PAGE_SIZE * 0.05) + 's';
+      card.innerHTML =
+        '<div class="review-card-header">'
+        + '<div class="review-avatar" style="background:' + avatarColor(r.name) + '">' + avatarLetter(r.name) + '</div>'
+        + '<div class="review-meta">'
+        + '<strong>' + escapeHtml(r.name) + '</strong>'
+        + '<span class="review-stars">' + starsHTML(r.rating) + '</span>'
+        + '<span>' + formatDate(r.date) + '</span>'
+        + '</div>'
+        + '</div>'
+        + (r.test ? '<span class="review-test-tag"><i class="fas fa-flask"></i> ' + escapeHtml(r.test) + '</span>' : '')
+        + '<p class="review-comment">' + escapeHtml(r.comment) + '</p>';
+      grid.appendChild(card);
+
+      // Trigger reveal animation
+      setTimeout(function () { card.classList.add('visible'); }, 50 + idx * 40);
+    });
+
+    if (loadWrap) loadWrap.style.display = sorted.length > shownCount ? 'block' : 'none';
+    updateStats();
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  // Load more button
+  var loadMoreBtn = document.getElementById('load-more-btn');
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', function () {
+      shownCount += PAGE_SIZE;
+      renderReviews();
+    });
+  }
+
+  // Star input interaction
+  var starInput    = document.getElementById('star-input');
+  var selectedStar = 0;
+  if (starInput) {
+    var stars = starInput.querySelectorAll('i');
+    stars.forEach(function (star) {
+      star.addEventListener('mouseover', function () {
+        var v = parseInt(this.getAttribute('data-val'));
+        stars.forEach(function (s) {
+          var sv = parseInt(s.getAttribute('data-val'));
+          s.classList.toggle('lit', sv <= v);
+          s.className = sv <= v ? 'fas fa-star lit' : 'far fa-star';
+        });
+      });
+      star.addEventListener('mouseleave', function () {
+        stars.forEach(function (s) {
+          var sv = parseInt(s.getAttribute('data-val'));
+          s.className = sv <= selectedStar ? 'fas fa-star lit' : 'far fa-star';
+        });
+      });
+      star.addEventListener('click', function () {
+        selectedStar = parseInt(this.getAttribute('data-val'));
+        stars.forEach(function (s) {
+          var sv = parseInt(s.getAttribute('data-val'));
+          s.className = sv <= selectedStar ? 'fas fa-star lit' : 'far fa-star';
+        });
+        var err = document.getElementById('rv-err-star');
+        if (err) err.textContent = '';
+      });
+    });
+
+    // Touch support for star input on mobile
+    starInput.addEventListener('touchstart', function (e) {
+      var touch = e.touches[0];
+      var target = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (target && target.hasAttribute('data-val')) {
+        selectedStar = parseInt(target.getAttribute('data-val'));
+        stars.forEach(function (s) {
+          var sv = parseInt(s.getAttribute('data-val'));
+          s.className = sv <= selectedStar ? 'fas fa-star lit' : 'far fa-star';
+        });
+        var err = document.getElementById('rv-err-star');
+        if (err) err.textContent = '';
+      }
+    }, { passive: true });
+  }
+
+  // Char counter
+  var rvComment = document.getElementById('rv-comment');
+  var rvCharCount = document.getElementById('rv-char-count');
+  if (rvComment) {
+    rvComment.addEventListener('input', function () {
+      if (rvCharCount) rvCharCount.textContent = this.value.length + ' / 500';
+    });
+  }
+
+  // Submit review
+  var submitBtn = document.getElementById('rv-submit-btn');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function () {
+      var name    = (document.getElementById('rv-name')    || {}).value || '';
+      var comment = (document.getElementById('rv-comment') || {}).value || '';
+      var test    = (document.getElementById('rv-test')    || {}).value || '';
+      var errName = document.getElementById('rv-err-name');
+      var errStar = document.getElementById('rv-err-star');
+      var errCom  = document.getElementById('rv-err-comment');
+      var valid   = true;
+
+      if (errName) errName.textContent = '';
+      if (errStar) errStar.textContent = '';
+      if (errCom)  errCom.textContent  = '';
+
+      if (!name.trim() || name.trim().length < 2) {
+        if (errName) errName.textContent = 'Please enter your name (at least 2 characters).';
+        valid = false;
+      }
+      if (selectedStar < 1) {
+        if (errStar) errStar.textContent = 'Please select a rating.';
+        valid = false;
+      }
+      if (!comment.trim() || comment.trim().length < 10) {
+        if (errCom) errCom.textContent = 'Please write at least 10 characters.';
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      var newReview = {
+        name:    name.trim(),
+        rating:  selectedStar,
+        test:    test.trim(),
+        comment: comment.trim(),
+        date:    new Date().toISOString().split('T')[0]
+      };
+
+      allReviews.unshift(newReview);
+      saveReviews(allReviews);
+      shownCount = PAGE_SIZE;
+      renderReviews();
+
+      // Reset form
+      if (document.getElementById('rv-name'))    document.getElementById('rv-name').value    = '';
+      if (document.getElementById('rv-phone'))   document.getElementById('rv-phone').value   = '';
+      if (document.getElementById('rv-test'))    document.getElementById('rv-test').value    = '';
+      if (document.getElementById('rv-comment')) document.getElementById('rv-comment').value = '';
+      if (rvCharCount) rvCharCount.textContent = '0 / 500';
+      selectedStar = 0;
+      if (starInput) starInput.querySelectorAll('i').forEach(function (s) { s.className = 'far fa-star'; });
+
+      if (typeof window.showToast === 'function') {
+        window.showToast('Thank you for your review!', 'success');
+      }
+
+      // Scroll to reviews grid
+      var grid = document.getElementById('reviews-grid');
+      if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  // Initial render
+  renderReviews();
+
+})();
